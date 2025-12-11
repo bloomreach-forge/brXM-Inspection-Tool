@@ -1,0 +1,503 @@
+{
+  "metadata" : {
+    "tool" : "Bloomreach CMS Inspections",
+    "version" : "1.0.0",
+    "timestamp" : "2025-12-10T15:05:45.096288",
+    "projectRoot" : "../ACM/acm/site/src/main/java/org/acm/components"
+  },
+  "summary" : {
+    "totalIssues" : 46,
+    "errors" : 34,
+    "warnings" : 5,
+    "info" : 7,
+    "hints" : 0
+  },
+  "byCategory" : [ {
+    "category" : "CONFIGURATION",
+    "displayName" : "Configuration Problems",
+    "count" : 36
+  }, {
+    "category" : "PERFORMANCE",
+    "displayName" : "Performance Issues",
+    "count" : 1
+  }, {
+    "category" : "SECURITY",
+    "displayName" : "Security Issues",
+    "count" : 5
+  }, {
+    "category" : "REPOSITORY_TIER",
+    "displayName" : "Repository Tier Issues",
+    "count" : 4
+  } ],
+  "bySeverity" : [ {
+    "severity" : "ERROR",
+    "count" : 34
+  }, {
+    "severity" : "WARNING",
+    "count" : 5
+  }, {
+    "severity" : "INFO",
+    "count" : 7
+  } ],
+  "issues" : [ {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/FormComponent.java",
+    "line" : 41,
+    "column" : 34,
+    "message" : "Parameter 'formSelection' used inline without null check",
+    "description" : "The component parameter 'formSelection' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/FormComponent.java",
+    "line" : 42,
+    "column" : 16,
+    "message" : "Parameter 'formSelection' used without null check",
+    "description" : "The component parameter 'formSelection' is accessed via getParameter()\nand stored in variable 'path', but used without null checking.\n\n**Risk**: HIGH - NullPointerException if parameter not configured\n\n**Why This Happens**:\n- Parameter not configured in CMS UI\n- Typo in parameter name\n- Component used in different context without configuration\n- Configuration not published yet\n- Parameter removed during refactoring\n\n**Problem Pattern**:\n```java\n// ⚠️ PROBLEM - No null check\nString value = getParameter(\"myParam\");\nresult.setText(value.toUpperCase()); // NPE if value is null!\n```\n\n**Correct Patterns**:\n\n**1. Simple Null Check** (Recommended):\n```java\nString value = getParameter(\"myParam\");\nif (value != null) {\n    result.setText(value.toUpperCase());\n} else {\n    // Provide default or skip\n    result.setText(\"Default Value\");\n}\n```\n\n**2. Early Return**:\n```java\nString value = getParameter(\"myParam\");\nif (value == null) {\n    logger.warn(\"Parameter 'myParam' not configured\");\n    return;\n}\nresult.setText(value.toUpperCase());\n```\n\n**3. Default Value**:\n```java\nString value = getParameter(\"myParam\");\nString safeValue = (value != null) ? value : \"defaultValue\";\nresult.setText(safeValue.toUpperCase());\n```\n\n**4. Optional Pattern** (Modern Java):\n```java\nOptional.ofNullable(getParameter(\"myParam\"))\n    .map(String::toUpperCase)\n    .ifPresent(result::setText);\n```\n\n**5. Apache Commons** (if available):\n```java\nString value = StringUtils.defaultString(getParameter(\"myParam\"), \"default\");\nresult.setText(value.toUpperCase());\n```\n\n**Best Practices**:\n- Document required parameters in component class JavaDoc\n- Log warnings when required parameters are missing\n- Provide sensible defaults where possible\n- Use parameter validation in doBeforeRender()\n- Consider creating a ParametersInfo class with validated parameters\n\n**Example: Robust Parameter Handling**:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    String title = getParameter(\"title\");\n    String limit = getParameter(\"limit\");\n\n    // Validate required parameters\n    if (title == null) {\n        logger.warn(\"Required parameter 'title' not configured for component {}\",\n            request.getRequestContext().getResolvedSiteMapItem().getHstComponentConfiguration().getName());\n        request.setAttribute(\"error\", \"Component not properly configured\");\n        return;\n    }\n\n    // Optional parameter with default\n    int maxItems = 10;\n    if (limit != null) {\n        try {\n            maxItems = Integer.parseInt(limit);\n        } catch (NumberFormatException e) {\n            logger.warn(\"Invalid limit parameter: {}\", limit);\n        }\n    }\n\n    request.setAttribute(\"title\", title);\n    request.setAttribute(\"maxItems\", maxItems);\n}\n```\n\n**Common HST Parameters to Check**:\n- Document picker paths\n- Query parameters\n- Display settings (limit, offset)\n- Configuration flags\n- Custom component settings\n\n**Related Community Issues**:\n- NullPointerException in component rendering\n- \"Component not displaying\" (due to NPE in doBeforeRender)\n- Parameters working locally but not on server\n\n**HST Component Configuration**:\nComponent parameters are configured in repository at:\n```\n/hst:hst/hst:configurations/[project]/hst:components/[component]\n  + hst:parameternames = ['param1', 'param2']\n  + hst:parametervalues = ['value1', 'value2']\n```\n\n**References**:\n- [HST Component Development](https://xmdocumentation.bloomreach.com/)\n- [Component Parameters Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/CalendarComponent.java",
+    "line" : 46,
+    "column" : 30,
+    "message" : "Parameter 'request' used inline without null check",
+    "description" : "The component parameter 'request' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/CalendarComponent.java",
+    "line" : 185,
+    "column" : 69,
+    "message" : "Parameter 'request' used inline without null check",
+    "description" : "The component parameter 'request' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "performance.unbounded-query",
+    "name" : "Unbounded JCR Query",
+    "severity" : "WARNING",
+    "category" : "PERFORMANCE",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/SitemapXmlComponent.java",
+    "line" : 119,
+    "column" : 30,
+    "message" : "Query 'hstQuery' executed without setLimit()",
+    "description" : "The JCR query 'hstQuery' is executed without calling setLimit().\nThis can cause serious performance issues if the result set is large.\n\n**Impact**: HIGH - Can cause OutOfMemoryError and application crashes\n\n**Symptoms**:\n- Slow page load times\n- High memory consumption\n- Database connection exhaustion\n- Application becomes unresponsive\n\n**Example Problem**:\n```java\nQuery query = queryManager.createQuery(\n    \"SELECT * FROM [hippostd:folder]\", Query.JCR_SQL2);\nQueryResult result = query.execute(); // ⚠️ No limit!\n// Could return 10,000+ nodes → OutOfMemoryError\n```\n\n**Correct Usage**:\n```java\nQuery query = queryManager.createQuery(\n    \"SELECT * FROM [hippostd:folder]\", Query.JCR_SQL2);\nquery.setLimit(100);  // ✓ Always set a limit\nQueryResult result = query.execute();\n```\n\n**Recommended Limits**:\n- List pages: 20-50 items\n- Search results: 100-500 items\n- Bulk operations: 1000 max (with pagination)\n- Admin operations: Consider if unbounded is truly needed\n\n**Alternative: Pagination**:\n```java\nlong offset = 0;\nlong pageSize = 100;\n\nwhile (true) {\n    query.setOffset(offset);\n    query.setLimit(pageSize);\n    QueryResult result = query.execute();\n\n    // Process results...\n\n    if (result.getNodes().getSize() < pageSize) {\n        break; // Last page\n    }\n    offset += pageSize;\n}\n```\n\n**Performance Tips**:\n- Use specific node types in queries (not [nt:base])\n- Add WHERE clauses to filter results\n- Ensure indexed properties are used in WHERE clauses\n- Consider using Lucene/Solr for complex searches\n\n**Related Community Issues**:\n- [Site brought down by indexing error](https://community.bloomreach.com/t/site-brought-down-potentially-by-indexing-error/2437)\n- OutOfMemoryError from large query results\n- Slow performance with faceted navigation\n\n**References**:\n- [JCR Query Best Practices](https://xmdocumentation.bloomreach.com/)\n- [Performance Optimization Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "INFO",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/SitemapXmlComponent.java",
+    "line" : 38,
+    "column" : 17,
+    "message" : "doBeforeRender should declare throws HstComponentException",
+    "description" : "HST component methods should declare HstComponentException for proper error handling.\n\n**Problem**: doBeforeRender doesn't declare throws clause.\n\n**Fix**: Add throws declaration:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    super.doBeforeRender(request, response);\n\n    try {\n        // Your logic that might fail\n        String data = fetchData();\n        request.setAttribute(\"data\", data);\n    } catch (Exception e) {\n        throw new HstComponentException(\"Failed to fetch data\", e);\n    }\n}\n```\n\n**Why This Matters**:\n- HST can handle HstComponentException gracefully\n- Proper exception propagation for error pages\n- Better logging and debugging\n\n**Best Practice**:\n- Wrap checked exceptions in HstComponentException\n- Log errors before throwing\n- Provide meaningful error messages\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/error-handling.html"
+  }, {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "INFO",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/PixelHeadComponent.java",
+    "line" : 10,
+    "column" : 17,
+    "message" : "doBeforeRender should declare throws HstComponentException",
+    "description" : "HST component methods should declare HstComponentException for proper error handling.\n\n**Problem**: doBeforeRender doesn't declare throws clause.\n\n**Fix**: Add throws declaration:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    super.doBeforeRender(request, response);\n\n    try {\n        // Your logic that might fail\n        String data = fetchData();\n        request.setAttribute(\"data\", data);\n    } catch (Exception e) {\n        throw new HstComponentException(\"Failed to fetch data\", e);\n    }\n}\n```\n\n**Why This Matters**:\n- HST can handle HstComponentException gracefully\n- Proper exception propagation for error pages\n- Better logging and debugging\n\n**Best Practice**:\n- Wrap checked exceptions in HstComponentException\n- Log errors before throwing\n- Provide meaningful error messages\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/error-handling.html"
+  }, {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "INFO",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/BaseMenuComponent.java",
+    "line" : 16,
+    "column" : 17,
+    "message" : "doBeforeRender should declare throws HstComponentException",
+    "description" : "HST component methods should declare HstComponentException for proper error handling.\n\n**Problem**: doBeforeRender doesn't declare throws clause.\n\n**Fix**: Add throws declaration:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    super.doBeforeRender(request, response);\n\n    try {\n        // Your logic that might fail\n        String data = fetchData();\n        request.setAttribute(\"data\", data);\n    } catch (Exception e) {\n        throw new HstComponentException(\"Failed to fetch data\", e);\n    }\n}\n```\n\n**Why This Matters**:\n- HST can handle HstComponentException gracefully\n- Proper exception propagation for error pages\n- Better logging and debugging\n\n**Best Practice**:\n- Wrap checked exceptions in HstComponentException\n- Log errors before throwing\n- Provide meaningful error messages\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/error-handling.html"
+  }, {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/Set404Component.java",
+    "line" : 17,
+    "column" : 14,
+    "message" : "Missing super.doBeforeRender() call in Set404Component",
+    "description" : "HST components should call super.doBeforeRender() to ensure proper initialization.\n\n**Problem**: doBeforeRender doesn't call parent implementation.\n\n**Fix**: Add super call as first statement:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    // \u0005 Call super first\n    super.doBeforeRender(request, response);\n\n    // Then your logic\n    String title = getComponentParameter(\"title\");\n    request.setAttribute(\"title\", title);\n}\n```\n\n**Why This Matters**:\n- Parent class may perform essential initialization\n- BaseHstComponent sets up common attributes\n- Skipping super call can cause subtle bugs\n\n**When It's OK to Skip**:\n- If you extend BaseHstComponent and override everything\n- If explicitly documented by your base class\n\n**Best Practice**: Always call super unless you have a good reason not to.\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/component-lifecycle.html"
+  }, {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "INFO",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/AcmEssentialsDocumentComponent.java",
+    "line" : 14,
+    "column" : 14,
+    "message" : "doBeforeRender should declare throws HstComponentException",
+    "description" : "HST component methods should declare HstComponentException for proper error handling.\n\n**Problem**: doBeforeRender doesn't declare throws clause.\n\n**Fix**: Add throws declaration:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    super.doBeforeRender(request, response);\n\n    try {\n        // Your logic that might fail\n        String data = fetchData();\n        request.setAttribute(\"data\", data);\n    } catch (Exception e) {\n        throw new HstComponentException(\"Failed to fetch data\", e);\n    }\n}\n```\n\n**Why This Matters**:\n- HST can handle HstComponentException gracefully\n- Proper exception propagation for error pages\n- Better logging and debugging\n\n**Best Practice**:\n- Wrap checked exceptions in HstComponentException\n- Log errors before throwing\n- Provide meaningful error messages\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/error-handling.html"
+  }, {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "INFO",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/components/PixelComponent.java",
+    "line" : 10,
+    "column" : 17,
+    "message" : "doBeforeRender should declare throws HstComponentException",
+    "description" : "HST component methods should declare HstComponentException for proper error handling.\n\n**Problem**: doBeforeRender doesn't declare throws clause.\n\n**Fix**: Add throws declaration:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    super.doBeforeRender(request, response);\n\n    try {\n        // Your logic that might fail\n        String data = fetchData();\n        request.setAttribute(\"data\", data);\n    } catch (Exception e) {\n        throw new HstComponentException(\"Failed to fetch data\", e);\n    }\n}\n```\n\n**Why This Matters**:\n- HST can handle HstComponentException gracefully\n- Proper exception propagation for error pages\n- Better logging and debugging\n\n**Best Practice**:\n- Wrap checked exceptions in HstComponentException\n- Log errors before throwing\n- Provide meaningful error messages\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/error-handling.html"
+  }, {
+    "id" : "security.hardcoded-credentials",
+    "name" : "Hardcoded Credentials",
+    "severity" : "ERROR",
+    "category" : "SECURITY",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/common/Constants.java",
+    "line" : 11,
+    "column" : 29,
+    "message" : "Hardcoded API Key: 'REST_API_KEY'",
+    "description" : "See HardcodedCredentialsInspection for full documentation.\n\nVariable: REST_API_KEY\nType: API Key\nMasked Value: ke********pi\n\nUse environment variables or external configuration instead."
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "WARNING",
+    "category" : "REPOSITORY_TIER",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/beans/AcmInfoNavMenu.java",
+    "line" : 6,
+    "column" : 14,
+    "message" : "Content bean 'AcmInfoNavMenu' missing @Node annotation",
+    "description" : "Content bean classes must be annotated with @Node to map to JCR node types.\n\n**Problem**: Class extends HippoBean/HippoDocument but lacks @Node annotation.\n\n**Fix**: Add @Node annotation with jcrType:\n```java\n@Node(jcrType = \"myproject:mydocument\")\npublic class AcmInfoNavMenu extends HippoDocument {\n    // ...\n}\n```\n\n**Why This Matters**:\n- Without @Node, the HST cannot map JCR nodes to this bean\n- Content queries will fail to return properly typed objects\n- Runtime ClassCastExceptions may occur\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/"
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "WARNING",
+    "category" : "REPOSITORY_TIER",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/beans/AcmSocialNav.java",
+    "line" : 6,
+    "column" : 14,
+    "message" : "Content bean 'AcmSocialNav' missing @Node annotation",
+    "description" : "Content bean classes must be annotated with @Node to map to JCR node types.\n\n**Problem**: Class extends HippoBean/HippoDocument but lacks @Node annotation.\n\n**Fix**: Add @Node annotation with jcrType:\n```java\n@Node(jcrType = \"myproject:mydocument\")\npublic class AcmSocialNav extends HippoDocument {\n    // ...\n}\n```\n\n**Why This Matters**:\n- Without @Node, the HST cannot map JCR nodes to this bean\n- Content queries will fail to return properly typed objects\n- Runtime ClassCastExceptions may occur\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/"
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 222,
+    "column" : 13,
+    "message" : "Parameter 'year' used inline without null check",
+    "description" : "The component parameter 'year' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 222,
+    "column" : 54,
+    "message" : "Parameter 'year' used inline without null check",
+    "description" : "The component parameter 'year' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 223,
+    "column" : 20,
+    "message" : "Parameter 'year' used inline without null check",
+    "description" : "The component parameter 'year' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 233,
+    "column" : 16,
+    "message" : "Parameter 'region' used inline without null check",
+    "description" : "The component parameter 'region' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 238,
+    "column" : 12,
+    "message" : "Parameter 'isSpecialCategory' used inline without null check",
+    "description" : "The component parameter 'isSpecialCategory' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 239,
+    "column" : 37,
+    "message" : "Parameter 'isSpecialCategory' used inline without null check",
+    "description" : "The component parameter 'isSpecialCategory' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 239,
+    "column" : 83,
+    "message" : "Parameter 'isSpecialCategory' used inline without null check",
+    "description" : "The component parameter 'isSpecialCategory' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 248,
+    "column" : 13,
+    "message" : "Parameter 'award' used inline without null check",
+    "description" : "The component parameter 'award' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 248,
+    "column" : 55,
+    "message" : "Parameter 'award' used inline without null check",
+    "description" : "The component parameter 'award' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 249,
+    "column" : 20,
+    "message" : "Parameter 'award' used inline without null check",
+    "description" : "The component parameter 'award' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 261,
+    "column" : 13,
+    "message" : "Parameter 'paramInfo' used inline without null check",
+    "description" : "The component parameter 'paramInfo' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 261,
+    "column" : 57,
+    "message" : "Parameter 'paramInfo' used inline without null check",
+    "description" : "The component parameter 'paramInfo' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AwardWinnerSearchComponent.java",
+    "line" : 262,
+    "column" : 20,
+    "message" : "Parameter 'paramInfo' used inline without null check",
+    "description" : "The component parameter 'paramInfo' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 241,
+    "column" : 13,
+    "message" : "Parameter 'year' used inline without null check",
+    "description" : "The component parameter 'year' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 241,
+    "column" : 54,
+    "message" : "Parameter 'year' used inline without null check",
+    "description" : "The component parameter 'year' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 242,
+    "column" : 20,
+    "message" : "Parameter 'year' used inline without null check",
+    "description" : "The component parameter 'year' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 252,
+    "column" : 16,
+    "message" : "Parameter 'region' used inline without null check",
+    "description" : "The component parameter 'region' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 257,
+    "column" : 12,
+    "message" : "Parameter 'isSpecialCategory' used inline without null check",
+    "description" : "The component parameter 'isSpecialCategory' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 258,
+    "column" : 37,
+    "message" : "Parameter 'isSpecialCategory' used inline without null check",
+    "description" : "The component parameter 'isSpecialCategory' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 258,
+    "column" : 83,
+    "message" : "Parameter 'isSpecialCategory' used inline without null check",
+    "description" : "The component parameter 'isSpecialCategory' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 267,
+    "column" : 13,
+    "message" : "Parameter 'award' used inline without null check",
+    "description" : "The component parameter 'award' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 267,
+    "column" : 55,
+    "message" : "Parameter 'award' used inline without null check",
+    "description" : "The component parameter 'award' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 268,
+    "column" : 20,
+    "message" : "Parameter 'award' used inline without null check",
+    "description" : "The component parameter 'award' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 280,
+    "column" : 13,
+    "message" : "Parameter 'paramInfo' used inline without null check",
+    "description" : "The component parameter 'paramInfo' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 280,
+    "column" : 57,
+    "message" : "Parameter 'paramInfo' used inline without null check",
+    "description" : "The component parameter 'paramInfo' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "config.component-parameter-null",
+    "name" : "Component Parameter Null Check",
+    "severity" : "ERROR",
+    "category" : "CONFIGURATION",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/components/AMTuringWinnerSearchComponent.java",
+    "line" : 281,
+    "column" : 20,
+    "message" : "Parameter 'paramInfo' used inline without null check",
+    "description" : "The component parameter 'paramInfo' is accessed and used immediately\nwithout any null checking. This will cause a NullPointerException if the\nparameter is not configured.\n\n**Problem**: Inline usage without assignment makes it impossible to null-check\n\n**Example**:\n```java\n// ❌ PROBLEM - Inline usage\nresult.setText(getParameter(\"title\").toUpperCase());\n// NPE if 'title' parameter not configured!\n```\n\n**Solution**: Assign to variable first, then null-check:\n```java\nString title = getParameter(\"title\");\nif (title != null) {\n    result.setText(title.toUpperCase());\n} else {\n    result.setText(\"Untitled\");\n}\n```\n\nSee the main documentation for comprehensive examples and best practices."
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "INFO",
+    "category" : "REPOSITORY_TIER",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/beans/GalleryItem.java",
+    "line" : 10,
+    "column" : 19,
+    "message" : "Getter 'getAltText' should have property mapping annotation",
+    "description" : "Content bean getters that access JCR properties should be annotated.\n\n**Problem**: Method calls getProperty() but lacks @HippoEssentialsGenerated or @JcrProperty.\n\n**Fix**: Add appropriate annotation:\n```java\n// For string properties\n@HippoEssentialsGenerated\npublic String getAltText() {\n    return getSingleProperty(\"myproject:alttext\");\n}\n\n// Or using @JcrProperty\n@JcrProperty(\"myproject:alttext\")\npublic String getAltText() {\n    return getSingleProperty(\"myproject:alttext\");\n}\n```\n\n**Why Annotate**:\n- Documents the JCR property being accessed\n- Enables tooling support\n- Makes code generation possible\n- Improves maintainability\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/hippo-essentials-generated.html"
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "INFO",
+    "category" : "REPOSITORY_TIER",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/awards/beans/GalleryItem.java",
+    "line" : 14,
+    "column" : 19,
+    "message" : "Getter 'getPhotoCaption' should have property mapping annotation",
+    "description" : "Content bean getters that access JCR properties should be annotated.\n\n**Problem**: Method calls getProperty() but lacks @HippoEssentialsGenerated or @JcrProperty.\n\n**Fix**: Add appropriate annotation:\n```java\n// For string properties\n@HippoEssentialsGenerated\npublic String getPhotoCaption() {\n    return getSingleProperty(\"myproject:photocaption\");\n}\n\n// Or using @JcrProperty\n@JcrProperty(\"myproject:photocaption\")\npublic String getPhotoCaption() {\n    return getSingleProperty(\"myproject:photocaption\");\n}\n```\n\n**Why Annotate**:\n- Documents the JCR property being accessed\n- Enables tooling support\n- Makes code generation possible\n- Improves maintainability\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/hippo-essentials-generated.html"
+  }, {
+    "id" : "security.rest-authentication",
+    "name" : "Missing REST Authentication",
+    "severity" : "ERROR",
+    "category" : "SECURITY",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/jaxrs/services/CountriesByRegionResource.java",
+    "line" : 33,
+    "column" : 5,
+    "message" : "REST endpoint 'getCountriesByRegion' missing authentication",
+    "description" : "REST endpoint 'getCountriesByRegion' (GET) does not have authentication configured.\n\n**Security Risk**: CRITICAL - Unauthorized access to API endpoints\n\n**Why This Is Dangerous**:\n- API endpoints are directly accessible via HTTP\n- No authentication means anyone can call the endpoint\n- Can expose sensitive data or operations\n- Common target for automated attacks\n- May violate compliance requirements (GDPR, HIPAA, etc.)\n\n**Problem Pattern**:\n```java\n// ❌ PROBLEM - No authentication\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        // Anyone can access this!\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**Correct Patterns**:\n\n**1. JAX-RS with @RolesAllowed** (Recommended):\n```java\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    @RolesAllowed({\"admin\", \"user\"})  // Add this!\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**2. Spring with @PreAuthorize**:\n```java\n@RestController\n@RequestMapping(\"/api/users\")\npublic class UserController {\n    @GetMapping(\"/{id}\")\n    @PreAuthorize(\"hasRole('ADMIN') or hasRole('USER')\")  // Add this!\n    public User getUser(@PathVariable String id) {\n        return userService.getUser(id);\n    }\n}\n```\n\n**3. Class-Level Security** (applies to all methods):\n```java\n@Path(\"/api/users\")\n@RolesAllowed(\"user\")  // Applies to all endpoints\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n\n    @POST\n    @RolesAllowed(\"admin\")  // Override for specific method\n    public Response createUser(User user) {\n        return Response.ok(userService.create(user)).build();\n    }\n}\n```\n\n**4. Manual Authentication Check** (when annotations don't work):\n```java\n@GET\n@Path(\"/{id}\")\npublic Response getUser(@PathParam(\"id\") String id, @Context SecurityContext sc) {\n    // Manual check\n    if (sc.getUserPrincipal() == null) {\n        return Response.status(Response.Status.UNAUTHORIZED).build();\n    }\n\n    // Check role\n    if (!sc.isUserInRole(\"user\")) {\n        return Response.status(Response.Status.FORBIDDEN).build();\n    }\n\n    return Response.ok(userService.getUser(id)).build();\n}\n```\n\n**5. Public Endpoint** (explicitly mark as public):\n```java\n@GET\n@Path(\"/health\")\n@PermitAll  // Explicitly mark as public\npublic Response healthCheck() {\n    return Response.ok(\"OK\").build();\n}\n```\n\n**Common Bloomreach Roles**:\n- `admin` - Full administrative access\n- `author` - Content authors\n- `editor` - Content editors\n- `developer` - Developers\n- `xm.rest.user` - REST API access\n- `xm.rest.admin` - REST API administrative access\n\n**Configuration**:\nEnsure authentication is configured in web.xml:\n```xml\n<security-constraint>\n    <web-resource-collection>\n        <web-resource-name>REST API</web-resource-name>\n        <url-pattern>/api/*</url-pattern>\n    </web-resource-collection>\n    <auth-constraint>\n        <role-name>xm.rest.user</role-name>\n    </auth-constraint>\n</security-constraint>\n```\n\n**Testing**:\n```bash\n# Test without auth (should fail)\ncurl http://localhost:8080/api/users/123\n\n# Test with auth\ncurl -u admin:admin http://localhost:8080/api/users/123\n```\n\n**When to Use Each Approach**:\n- @RolesAllowed: Standard approach for most endpoints\n- @PermitAll: Explicitly public endpoints (health checks, documentation)\n- @DenyAll: Deprecated or disabled endpoints\n- Manual check: Custom authentication logic\n\n**Related Issues**:\n- CORS configuration for cross-origin requests\n- CSRF protection for state-changing operations\n- Rate limiting for public APIs\n\n**References**:\n- [JAX-RS Security](https://docs.oracle.com/javaee/7/tutorial/security-jaxrs002.htm)\n- [Bloomreach REST API Security](https://xmdocumentation.bloomreach.com/)\n- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)"
+  }, {
+    "id" : "security.rest-authentication",
+    "name" : "Missing REST Authentication",
+    "severity" : "ERROR",
+    "category" : "SECURITY",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/jaxrs/services/FormExample.java",
+    "line" : 26,
+    "column" : 5,
+    "message" : "REST endpoint 'createMessage' missing authentication",
+    "description" : "REST endpoint 'createMessage' (POST) does not have authentication configured.\n\n**Security Risk**: CRITICAL - Unauthorized access to API endpoints\n\n**Why This Is Dangerous**:\n- API endpoints are directly accessible via HTTP\n- No authentication means anyone can call the endpoint\n- Can expose sensitive data or operations\n- Common target for automated attacks\n- May violate compliance requirements (GDPR, HIPAA, etc.)\n\n**Problem Pattern**:\n```java\n// ❌ PROBLEM - No authentication\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        // Anyone can access this!\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**Correct Patterns**:\n\n**1. JAX-RS with @RolesAllowed** (Recommended):\n```java\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    @RolesAllowed({\"admin\", \"user\"})  // Add this!\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**2. Spring with @PreAuthorize**:\n```java\n@RestController\n@RequestMapping(\"/api/users\")\npublic class UserController {\n    @GetMapping(\"/{id}\")\n    @PreAuthorize(\"hasRole('ADMIN') or hasRole('USER')\")  // Add this!\n    public User getUser(@PathVariable String id) {\n        return userService.getUser(id);\n    }\n}\n```\n\n**3. Class-Level Security** (applies to all methods):\n```java\n@Path(\"/api/users\")\n@RolesAllowed(\"user\")  // Applies to all endpoints\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n\n    @POST\n    @RolesAllowed(\"admin\")  // Override for specific method\n    public Response createUser(User user) {\n        return Response.ok(userService.create(user)).build();\n    }\n}\n```\n\n**4. Manual Authentication Check** (when annotations don't work):\n```java\n@GET\n@Path(\"/{id}\")\npublic Response getUser(@PathParam(\"id\") String id, @Context SecurityContext sc) {\n    // Manual check\n    if (sc.getUserPrincipal() == null) {\n        return Response.status(Response.Status.UNAUTHORIZED).build();\n    }\n\n    // Check role\n    if (!sc.isUserInRole(\"user\")) {\n        return Response.status(Response.Status.FORBIDDEN).build();\n    }\n\n    return Response.ok(userService.getUser(id)).build();\n}\n```\n\n**5. Public Endpoint** (explicitly mark as public):\n```java\n@GET\n@Path(\"/health\")\n@PermitAll  // Explicitly mark as public\npublic Response healthCheck() {\n    return Response.ok(\"OK\").build();\n}\n```\n\n**Common Bloomreach Roles**:\n- `admin` - Full administrative access\n- `author` - Content authors\n- `editor` - Content editors\n- `developer` - Developers\n- `xm.rest.user` - REST API access\n- `xm.rest.admin` - REST API administrative access\n\n**Configuration**:\nEnsure authentication is configured in web.xml:\n```xml\n<security-constraint>\n    <web-resource-collection>\n        <web-resource-name>REST API</web-resource-name>\n        <url-pattern>/api/*</url-pattern>\n    </web-resource-collection>\n    <auth-constraint>\n        <role-name>xm.rest.user</role-name>\n    </auth-constraint>\n</security-constraint>\n```\n\n**Testing**:\n```bash\n# Test without auth (should fail)\ncurl http://localhost:8080/api/users/123\n\n# Test with auth\ncurl -u admin:admin http://localhost:8080/api/users/123\n```\n\n**When to Use Each Approach**:\n- @RolesAllowed: Standard approach for most endpoints\n- @PermitAll: Explicitly public endpoints (health checks, documentation)\n- @DenyAll: Deprecated or disabled endpoints\n- Manual check: Custom authentication logic\n\n**Related Issues**:\n- CORS configuration for cross-origin requests\n- CSRF protection for state-changing operations\n- Rate limiting for public APIs\n\n**References**:\n- [JAX-RS Security](https://docs.oracle.com/javaee/7/tutorial/security-jaxrs002.htm)\n- [Bloomreach REST API Security](https://xmdocumentation.bloomreach.com/)\n- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)"
+  }, {
+    "id" : "security.rest-authentication",
+    "name" : "Missing REST Authentication",
+    "severity" : "ERROR",
+    "category" : "SECURITY",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/jaxrs/services/RegionsByAwardResource.java",
+    "line" : 38,
+    "column" : 5,
+    "message" : "REST endpoint 'getRegionsByAwardResource' missing authentication",
+    "description" : "REST endpoint 'getRegionsByAwardResource' (GET) does not have authentication configured.\n\n**Security Risk**: CRITICAL - Unauthorized access to API endpoints\n\n**Why This Is Dangerous**:\n- API endpoints are directly accessible via HTTP\n- No authentication means anyone can call the endpoint\n- Can expose sensitive data or operations\n- Common target for automated attacks\n- May violate compliance requirements (GDPR, HIPAA, etc.)\n\n**Problem Pattern**:\n```java\n// ❌ PROBLEM - No authentication\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        // Anyone can access this!\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**Correct Patterns**:\n\n**1. JAX-RS with @RolesAllowed** (Recommended):\n```java\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    @RolesAllowed({\"admin\", \"user\"})  // Add this!\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**2. Spring with @PreAuthorize**:\n```java\n@RestController\n@RequestMapping(\"/api/users\")\npublic class UserController {\n    @GetMapping(\"/{id}\")\n    @PreAuthorize(\"hasRole('ADMIN') or hasRole('USER')\")  // Add this!\n    public User getUser(@PathVariable String id) {\n        return userService.getUser(id);\n    }\n}\n```\n\n**3. Class-Level Security** (applies to all methods):\n```java\n@Path(\"/api/users\")\n@RolesAllowed(\"user\")  // Applies to all endpoints\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n\n    @POST\n    @RolesAllowed(\"admin\")  // Override for specific method\n    public Response createUser(User user) {\n        return Response.ok(userService.create(user)).build();\n    }\n}\n```\n\n**4. Manual Authentication Check** (when annotations don't work):\n```java\n@GET\n@Path(\"/{id}\")\npublic Response getUser(@PathParam(\"id\") String id, @Context SecurityContext sc) {\n    // Manual check\n    if (sc.getUserPrincipal() == null) {\n        return Response.status(Response.Status.UNAUTHORIZED).build();\n    }\n\n    // Check role\n    if (!sc.isUserInRole(\"user\")) {\n        return Response.status(Response.Status.FORBIDDEN).build();\n    }\n\n    return Response.ok(userService.getUser(id)).build();\n}\n```\n\n**5. Public Endpoint** (explicitly mark as public):\n```java\n@GET\n@Path(\"/health\")\n@PermitAll  // Explicitly mark as public\npublic Response healthCheck() {\n    return Response.ok(\"OK\").build();\n}\n```\n\n**Common Bloomreach Roles**:\n- `admin` - Full administrative access\n- `author` - Content authors\n- `editor` - Content editors\n- `developer` - Developers\n- `xm.rest.user` - REST API access\n- `xm.rest.admin` - REST API administrative access\n\n**Configuration**:\nEnsure authentication is configured in web.xml:\n```xml\n<security-constraint>\n    <web-resource-collection>\n        <web-resource-name>REST API</web-resource-name>\n        <url-pattern>/api/*</url-pattern>\n    </web-resource-collection>\n    <auth-constraint>\n        <role-name>xm.rest.user</role-name>\n    </auth-constraint>\n</security-constraint>\n```\n\n**Testing**:\n```bash\n# Test without auth (should fail)\ncurl http://localhost:8080/api/users/123\n\n# Test with auth\ncurl -u admin:admin http://localhost:8080/api/users/123\n```\n\n**When to Use Each Approach**:\n- @RolesAllowed: Standard approach for most endpoints\n- @PermitAll: Explicitly public endpoints (health checks, documentation)\n- @DenyAll: Deprecated or disabled endpoints\n- Manual check: Custom authentication logic\n\n**Related Issues**:\n- CORS configuration for cross-origin requests\n- CSRF protection for state-changing operations\n- Rate limiting for public APIs\n\n**References**:\n- [JAX-RS Security](https://docs.oracle.com/javaee/7/tutorial/security-jaxrs002.htm)\n- [Bloomreach REST API Security](https://xmdocumentation.bloomreach.com/)\n- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)"
+  }, {
+    "id" : "security.rest-authentication",
+    "name" : "Missing REST Authentication",
+    "severity" : "ERROR",
+    "category" : "SECURITY",
+    "file" : "../ACM/acm/site/src/main/java/org/acm/jaxrs/services/RegionsByAwardResource.java",
+    "line" : 80,
+    "column" : 5,
+    "message" : "REST endpoint 'getAwardsByRegionResource' missing authentication",
+    "description" : "REST endpoint 'getAwardsByRegionResource' (GET) does not have authentication configured.\n\n**Security Risk**: CRITICAL - Unauthorized access to API endpoints\n\n**Why This Is Dangerous**:\n- API endpoints are directly accessible via HTTP\n- No authentication means anyone can call the endpoint\n- Can expose sensitive data or operations\n- Common target for automated attacks\n- May violate compliance requirements (GDPR, HIPAA, etc.)\n\n**Problem Pattern**:\n```java\n// ❌ PROBLEM - No authentication\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        // Anyone can access this!\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**Correct Patterns**:\n\n**1. JAX-RS with @RolesAllowed** (Recommended):\n```java\n@Path(\"/api/users\")\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    @RolesAllowed({\"admin\", \"user\"})  // Add this!\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n}\n```\n\n**2. Spring with @PreAuthorize**:\n```java\n@RestController\n@RequestMapping(\"/api/users\")\npublic class UserController {\n    @GetMapping(\"/{id}\")\n    @PreAuthorize(\"hasRole('ADMIN') or hasRole('USER')\")  // Add this!\n    public User getUser(@PathVariable String id) {\n        return userService.getUser(id);\n    }\n}\n```\n\n**3. Class-Level Security** (applies to all methods):\n```java\n@Path(\"/api/users\")\n@RolesAllowed(\"user\")  // Applies to all endpoints\npublic class UserResource {\n    @GET\n    @Path(\"/{id}\")\n    public Response getUser(@PathParam(\"id\") String id) {\n        return Response.ok(userService.getUser(id)).build();\n    }\n\n    @POST\n    @RolesAllowed(\"admin\")  // Override for specific method\n    public Response createUser(User user) {\n        return Response.ok(userService.create(user)).build();\n    }\n}\n```\n\n**4. Manual Authentication Check** (when annotations don't work):\n```java\n@GET\n@Path(\"/{id}\")\npublic Response getUser(@PathParam(\"id\") String id, @Context SecurityContext sc) {\n    // Manual check\n    if (sc.getUserPrincipal() == null) {\n        return Response.status(Response.Status.UNAUTHORIZED).build();\n    }\n\n    // Check role\n    if (!sc.isUserInRole(\"user\")) {\n        return Response.status(Response.Status.FORBIDDEN).build();\n    }\n\n    return Response.ok(userService.getUser(id)).build();\n}\n```\n\n**5. Public Endpoint** (explicitly mark as public):\n```java\n@GET\n@Path(\"/health\")\n@PermitAll  // Explicitly mark as public\npublic Response healthCheck() {\n    return Response.ok(\"OK\").build();\n}\n```\n\n**Common Bloomreach Roles**:\n- `admin` - Full administrative access\n- `author` - Content authors\n- `editor` - Content editors\n- `developer` - Developers\n- `xm.rest.user` - REST API access\n- `xm.rest.admin` - REST API administrative access\n\n**Configuration**:\nEnsure authentication is configured in web.xml:\n```xml\n<security-constraint>\n    <web-resource-collection>\n        <web-resource-name>REST API</web-resource-name>\n        <url-pattern>/api/*</url-pattern>\n    </web-resource-collection>\n    <auth-constraint>\n        <role-name>xm.rest.user</role-name>\n    </auth-constraint>\n</security-constraint>\n```\n\n**Testing**:\n```bash\n# Test without auth (should fail)\ncurl http://localhost:8080/api/users/123\n\n# Test with auth\ncurl -u admin:admin http://localhost:8080/api/users/123\n```\n\n**When to Use Each Approach**:\n- @RolesAllowed: Standard approach for most endpoints\n- @PermitAll: Explicitly public endpoints (health checks, documentation)\n- @DenyAll: Deprecated or disabled endpoints\n- Manual check: Custom authentication logic\n\n**Related Issues**:\n- CORS configuration for cross-origin requests\n- CSRF protection for state-changing operations\n- Rate limiting for public APIs\n\n**References**:\n- [JAX-RS Security](https://docs.oracle.com/javaee/7/tutorial/security-jaxrs002.htm)\n- [Bloomreach REST API Security](https://xmdocumentation.bloomreach.com/)\n- [OWASP API Security Top 10](https://owasp.org/www-project-api-security/)"
+  } ]
+}

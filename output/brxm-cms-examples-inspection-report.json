@@ -1,0 +1,95 @@
+{
+  "metadata" : {
+    "tool" : "Bloomreach CMS Inspections",
+    "version" : "1.0.0",
+    "timestamp" : "2025-12-10T12:29:52.728471",
+    "projectRoot" : "/tmp/brxm-cms-examples/src/main/java/com/example/components"
+  },
+  "summary" : {
+    "totalIssues" : 6,
+    "errors" : 1,
+    "warnings" : 2,
+    "info" : 3,
+    "hints" : 0
+  },
+  "byCategory" : [ {
+    "category" : "CONFIGURATION",
+    "displayName" : "Configuration Problems",
+    "count" : 2
+  }, {
+    "category" : "REPOSITORY_TIER",
+    "displayName" : "Repository Tier Issues",
+    "count" : 4
+  } ],
+  "bySeverity" : [ {
+    "severity" : "WARNING",
+    "count" : 2
+  }, {
+    "severity" : "INFO",
+    "count" : 3
+  }, {
+    "severity" : "ERROR",
+    "count" : 1
+  } ],
+  "issues" : [ {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "/tmp/brxm-cms-examples/src/main/java/com/example/components/ArticleComponent.java",
+    "line" : 14,
+    "column" : 17,
+    "message" : "Missing super.doBeforeRender() call in ArticleComponent",
+    "description" : "HST components should call super.doBeforeRender() to ensure proper initialization.\n\n**Problem**: doBeforeRender doesn't call parent implementation.\n\n**Fix**: Add super call as first statement:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    // \u0005 Call super first\n    super.doBeforeRender(request, response);\n\n    // Then your logic\n    String title = getComponentParameter(\"title\");\n    request.setAttribute(\"title\", title);\n}\n```\n\n**Why This Matters**:\n- Parent class may perform essential initialization\n- BaseHstComponent sets up common attributes\n- Skipping super call can cause subtle bugs\n\n**When It's OK to Skip**:\n- If you extend BaseHstComponent and override everything\n- If explicitly documented by your base class\n\n**Best Practice**: Always call super unless you have a good reason not to.\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/component-lifecycle.html"
+  }, {
+    "id" : "config.hst-component-lifecycle",
+    "name" : "HST Component Lifecycle Issues",
+    "severity" : "INFO",
+    "category" : "CONFIGURATION",
+    "file" : "/tmp/brxm-cms-examples/src/main/java/com/example/components/ArticleComponent.java",
+    "line" : 14,
+    "column" : 17,
+    "message" : "doBeforeRender should declare throws HstComponentException",
+    "description" : "HST component methods should declare HstComponentException for proper error handling.\n\n**Problem**: doBeforeRender doesn't declare throws clause.\n\n**Fix**: Add throws declaration:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response)\n        throws HstComponentException {\n    super.doBeforeRender(request, response);\n\n    try {\n        // Your logic that might fail\n        String data = fetchData();\n        request.setAttribute(\"data\", data);\n    } catch (Exception e) {\n        throw new HstComponentException(\"Failed to fetch data\", e);\n    }\n}\n```\n\n**Why This Matters**:\n- HST can handle HstComponentException gracefully\n- Proper exception propagation for error pages\n- Better logging and debugging\n\n**Best Practice**:\n- Wrap checked exceptions in HstComponentException\n- Log errors before throwing\n- Provide meaningful error messages\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/hst/components/error-handling.html"
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "WARNING",
+    "category" : "REPOSITORY_TIER",
+    "file" : "/tmp/brxm-cms-examples/src/main/java/com/example/beans/ArticleBean.java",
+    "line" : 6,
+    "column" : 14,
+    "message" : "Content bean 'ArticleBean' missing @Node annotation",
+    "description" : "Content bean classes must be annotated with @Node to map to JCR node types.\n\n**Problem**: Class extends HippoBean/HippoDocument but lacks @Node annotation.\n\n**Fix**: Add @Node annotation with jcrType:\n```java\n@Node(jcrType = \"myproject:mydocument\")\npublic class ArticleBean extends HippoDocument {\n    // ...\n}\n```\n\n**Why This Matters**:\n- Without @Node, the HST cannot map JCR nodes to this bean\n- Content queries will fail to return properly typed objects\n- Runtime ClassCastExceptions may occur\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/"
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "ERROR",
+    "category" : "REPOSITORY_TIER",
+    "file" : "/tmp/brxm-cms-examples/src/main/java/com/example/beans/ArticleBean.java",
+    "line" : 6,
+    "column" : 14,
+    "message" : "Content bean 'ArticleBean' lacks no-argument constructor",
+    "description" : "Content beans must have a public no-argument constructor for HST instantiation.\n\n**Problem**: Class has constructors but none are no-arg.\n\n**Fix**: Add a public no-arg constructor:\n```java\npublic class ArticleBean extends HippoDocument {\n\n    // Required for HST\n    public ArticleBean() {\n    }\n\n    // Your other constructors...\n}\n```\n\n**Why This Matters**:\n- HST uses reflection to instantiate content beans\n- Without no-arg constructor, you'll get InstantiationException at runtime\n- This is a **runtime error** that may only appear in production\n\n**Note**: If you have no explicit constructors, Java provides a default no-arg constructor automatically.\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/create-a-content-bean.html"
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "INFO",
+    "category" : "REPOSITORY_TIER",
+    "file" : "/tmp/brxm-cms-examples/src/main/java/com/example/beans/ArticleBean.java",
+    "line" : 16,
+    "column" : 19,
+    "message" : "Getter 'getTitle' should have property mapping annotation",
+    "description" : "Content bean getters that access JCR properties should be annotated.\n\n**Problem**: Method calls getProperty() but lacks @HippoEssentialsGenerated or @JcrProperty.\n\n**Fix**: Add appropriate annotation:\n```java\n// For string properties\n@HippoEssentialsGenerated\npublic String getTitle() {\n    return getSingleProperty(\"myproject:title\");\n}\n\n// Or using @JcrProperty\n@JcrProperty(\"myproject:title\")\npublic String getTitle() {\n    return getSingleProperty(\"myproject:title\");\n}\n```\n\n**Why Annotate**:\n- Documents the JCR property being accessed\n- Enables tooling support\n- Makes code generation possible\n- Improves maintainability\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/hippo-essentials-generated.html"
+  }, {
+    "id" : "repository.content-bean-mapping",
+    "name" : "Content Bean Mapping Issues",
+    "severity" : "INFO",
+    "category" : "REPOSITORY_TIER",
+    "file" : "/tmp/brxm-cms-examples/src/main/java/com/example/beans/ArticleBean.java",
+    "line" : 20,
+    "column" : 19,
+    "message" : "Getter 'getAuthor' should have property mapping annotation",
+    "description" : "Content bean getters that access JCR properties should be annotated.\n\n**Problem**: Method calls getProperty() but lacks @HippoEssentialsGenerated or @JcrProperty.\n\n**Fix**: Add appropriate annotation:\n```java\n// For string properties\n@HippoEssentialsGenerated\npublic String getAuthor() {\n    return getSingleProperty(\"myproject:author\");\n}\n\n// Or using @JcrProperty\n@JcrProperty(\"myproject:author\")\npublic String getAuthor() {\n    return getSingleProperty(\"myproject:author\");\n}\n```\n\n**Why Annotate**:\n- Documents the JCR property being accessed\n- Enables tooling support\n- Makes code generation possible\n- Improves maintainability\n\n**Reference**: https://xmdocumentation.bloomreach.com/library/concepts/content-beans/hippo-essentials-generated.html"
+  } ]
+}

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test file to verify Bootstrap UUID conflict inspection works.
+
+  This should trigger:
+  - ERROR: Duplicate UUID detected
+-->
+<sv:node sv:name="test-bootstrap"
+         xmlns:sv="http://www.jcp.org/jcr/sv/1.0">
+
+  <!-- BAD: Duplicate UUID -->
+  <sv:node sv:name="node1">
+    <sv:property sv:name="jcr:primaryType" sv:type="Name">
+      <sv:value>nt:unstructured</sv:value>
+    </sv:property>
+    <sv:property sv:name="jcr:uuid" sv:type="String">
+      <sv:value>cafebabe-0000-0000-0000-000000000001</sv:value> <!-- ← Should show ERROR -->
+    </sv:property>
+  </sv:node>
+
+  <!-- BAD: Same UUID as above! -->
+  <sv:node sv:name="node2">
+    <sv:property sv:name="jcr:primaryType" sv:type="Name">
+      <sv:value>nt:unstructured</sv:value>
+    </sv:property>
+    <sv:property sv:name="jcr:uuid" sv:type="String">
+      <sv:value>cafebabe-0000-0000-0000-000000000001</sv:value> <!-- ← Should show ERROR -->
+    </sv:property>
+  </sv:node>
+
+  <!-- GOOD: Unique UUID -->
+  <sv:node sv:name="node3">
+    <sv:property sv:name="jcr:primaryType" sv:type="Name">
+      <sv:value>nt:unstructured</sv:value>
+    </sv:property>
+    <sv:property sv:name="jcr:uuid" sv:type="String">
+      <sv:value>cafebabe-0000-0000-0000-000000000002</sv:value> <!-- ← Unique, no error -->
+    </sv:property>
+  </sv:node>
+
+</sv:node>

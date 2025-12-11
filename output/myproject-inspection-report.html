@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bloomreach CMS Inspection Report</title>
+    <style>
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    padding: 20px;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+}
+
+header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    text-align: center;
+}
+
+header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.timestamp {
+    font-size: 1rem;
+    opacity: 0.9;
+}
+
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 40px;
+    background: #f8f9fa;
+}
+
+.card {
+    background: white;
+    border-radius: 8px;
+    padding: 24px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+.card-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.card-label {
+    font-size: 0.9rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.card.total .card-value { color: #667eea; }
+.card.error .card-value { color: #dc3545; }
+.card.warning .card-value { color: #ffc107; }
+.card.info .card-value { color: #17a2b8; }
+.card.hint .card-value { color: #6c757d; }
+
+.section {
+    padding: 40px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.section:last-child {
+    border-bottom: none;
+}
+
+h2 {
+    font-size: 1.8rem;
+    margin-bottom: 24px;
+    color: #2c3e50;
+    border-bottom: 3px solid #667eea;
+    padding-bottom: 8px;
+}
+
+h3 {
+    font-size: 1.3rem;
+    margin-bottom: 12px;
+    color: #34495e;
+}
+
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+
+.data-table thead {
+    background: #667eea;
+    color: white;
+}
+
+.data-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 0.5px;
+}
+
+.data-table td {
+    padding: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.data-table tbody tr:hover {
+    background: #f8f9fa;
+}
+
+.progress-bar {
+    display: inline-block;
+    width: 200px;
+    height: 20px;
+    background: #e9ecef;
+    border-radius: 10px;
+    overflow: hidden;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.progress-fill {
+    height: 100%;
+    background: #667eea;
+    transition: width 0.3s ease;
+}
+
+.progress-fill.error { background: #dc3545; }
+.progress-fill.warning { background: #ffc107; }
+.progress-fill.info { background: #17a2b8; }
+.progress-fill.hint { background: #6c757d; }
+
+.percentage {
+    font-weight: 600;
+    color: #666;
+}
+
+.file-section {
+    margin-bottom: 32px;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.file-path {
+    background: #f8f9fa;
+    padding: 16px 20px;
+    margin: 0;
+    font-family: 'Courier New', monospace;
+    font-size: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.file-stats {
+    background: #e9ecef;
+    padding: 8px 20px;
+    font-size: 0.9rem;
+    color: #666;
+}
+
+.issue {
+    padding: 20px;
+    border-left: 4px solid #667eea;
+    margin: 16px 20px;
+    background: #f8f9fa;
+    border-radius: 4px;
+}
+
+.issue.error { border-left-color: #dc3545; background: #fff5f5; }
+.issue.warning { border-left-color: #ffc107; background: #fffdf5; }
+.issue.info { border-left-color: #17a2b8; background: #f5fcff; }
+.issue.hint { border-left-color: #6c757d; background: #f8f9fa; }
+
+.issue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.severity-badge {
+    display: inline-block;
+    padding: 4px 12px;
+    border-radius: 16px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.severity-badge.error { background: #dc3545; color: white; }
+.severity-badge.warning { background: #ffc107; color: #333; }
+.severity-badge.info { background: #17a2b8; color: white; }
+.severity-badge.hint { background: #6c757d; color: white; }
+
+.issue-location {
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    color: #666;
+    background: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+}
+
+.issue-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 12px;
+}
+
+.issue-meta {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.inspection-id, .category {
+    font-size: 0.85rem;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: white;
+    color: #666;
+}
+
+.issue-details {
+    margin-top: 12px;
+}
+
+.issue-details summary {
+    cursor: pointer;
+    color: #667eea;
+    font-weight: 600;
+    padding: 8px;
+    background: white;
+    border-radius: 4px;
+    user-select: none;
+}
+
+.issue-details summary:hover {
+    background: #f0f0f0;
+}
+
+.issue-description {
+    margin-top: 12px;
+    padding: 16px;
+    background: white;
+    border-radius: 4px;
+    border: 1px solid #e9ecef;
+}
+
+.issue-description pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #333;
+}
+
+.no-issues {
+    text-align: center;
+    padding: 60px 40px;
+}
+
+.no-issues h2 {
+    font-size: 2.5rem;
+    color: #28a745;
+    border: none;
+    margin-bottom: 16px;
+}
+
+.no-issues p {
+    font-size: 1.2rem;
+    color: #666;
+}
+
+footer {
+    background: #2c3e50;
+    color: white;
+    padding: 30px 40px;
+    text-align: center;
+}
+
+footer p {
+    margin: 8px 0;
+}
+
+footer a {
+    color: #667eea;
+    text-decoration: none;
+}
+
+footer a:hover {
+    text-decoration: underline;
+}
+
+.footer-note {
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+@media print {
+    body {
+        background: white;
+        padding: 0;
+    }
+
+    .container {
+        box-shadow: none;
+    }
+
+    .card:hover {
+        transform: none;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .issue-details summary {
+        display: none;
+    }
+
+    .issue-details[open] .issue-description {
+        display: block !important;
+    }
+}
+
+@media (max-width: 768px) {
+    .summary-cards {
+        grid-template-columns: 1fr;
+    }
+
+    header h1 {
+        font-size: 1.8rem;
+    }
+
+    .section {
+        padding: 20px;
+    }
+
+    .progress-bar {
+        width: 100px;
+    }
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bloomreach CMS Inspection Report</h1>
+            <p class="timestamp">Generated: 2025-12-10 14:02:08</p>
+        </header>
+        <section class="summary-cards">
+            <div class="card total">
+                <div class="card-value">1</div>
+                <div class="card-label">Total Issues</div>
+            </div>
+            <div class="card error">
+                <div class="card-value">0</div>
+                <div class="card-label">Errors</div>
+            </div>
+            <div class="card warning">
+                <div class="card-value">1</div>
+                <div class="card-label">Warnings</div>
+            </div>
+            <div class="card info">
+                <div class="card-value">0</div>
+                <div class="card-label">Info</div>
+            </div>
+            <div class="card hint">
+                <div class="card-value">0</div>
+                <div class="card-label">Hints</div>
+            </div>
+        </section>
+        <section class="section">
+            <h2>Issues by Category</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Category</th>
+                        <th>Count</th>
+                        <th>Percentage</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Configuration Problems</strong></td>
+                        <td>1</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill" style="width: 100%"></div>
+                            </div>
+                            <span class="percentage">100%</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section class="section">
+            <h2>Issues by Severity</h2>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Severity</th>
+                        <th>Count</th>
+                        <th>Distribution</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="severity-badge warning">WARNING</span></td>
+                        <td>1</td>
+                        <td>
+                            <div class="progress-bar">
+                                <div class="progress-fill warning" style="width: 100%"></div>
+                            </div>
+                            <span class="percentage">100%</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+        <section class="section">
+            <h2>Detailed Issues</h2>
+            <div class="file-section">
+                <h3 class="file-path">../myproject/repository-data/site/src/main/resources/hcm-config/hst/configurations/myproject/sitemap.yaml</h3>
+                <div class="file-stats">1 issue(s)</div>
+                <div class="issue warning">
+                    <div class="issue-header">
+                        <span class="severity-badge warning">WARNING</span>
+                        <span class="issue-location">Line 2:0</span>
+                    </div>
+                    <div class="issue-title">Sitemap item &#39;config&#39; missing cache configuration</div>
+                    <div class="issue-meta">
+                        <span class="inspection-id">config.cache-configuration</span>
+                        <span class="category">Configuration Problems</span>
+                    </div>
+                    <details class="issue-details">
+                        <summary>Show details</summary>
+                        <div class="issue-description">
+                            <pre>The sitemap item &#39;config&#39; has a component reference but no hst:cacheable property defined.
+
+**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.
+
+**Why Caching Matters**:
+- Cached pages can be 10-100x faster
+- Reduces CPU and database load
+- Improves user experience
+- Reduces infrastructure costs
+
+**Problem Pattern**:
+```xml
+&lt;!-- ⚠️ PROBLEM - No caching defined --&gt;
+&lt;hst:sitemapitem hst:name=&quot;news&quot;&gt;
+  &lt;hst:componentconfigurationid&gt;news-overview&lt;/hst:componentconfigurationid&gt;
+  &lt;hst:relativecontentpath&gt;news&lt;/hst:relativecontentpath&gt;
+&lt;/hst:sitemapitem&gt;
+```
+
+**Correct Pattern - Enable Caching**:
+```xml
+&lt;!-- ✅ CORRECT - Caching enabled --&gt;
+&lt;hst:sitemapitem hst:name=&quot;news&quot;&gt;
+  &lt;hst:componentconfigurationid&gt;news-overview&lt;/hst:componentconfigurationid&gt;
+  &lt;hst:relativecontentpath&gt;news&lt;/hst:relativecontentpath&gt;
+  &lt;hst:cacheable&gt;true&lt;/hst:cacheable&gt;
+&lt;/hst:sitemapitem&gt;
+```
+
+**YAML Format**:
+```yaml
+news:
+  componentconfigurationid: news-overview
+  relativecontentpath: news
+  cacheable: true  # Add this!
+```
+
+**When to Enable Caching**:
+- ✅ Static content pages (About, Contact, etc.)
+- ✅ News articles and blog posts
+- ✅ Product listings
+- ✅ Navigation menus
+- ✅ Search results (with cache per query)
+
+**When to Disable Caching**:
+- ❌ User-specific content (profile, dashboard)
+- ❌ Shopping cart and checkout
+- ❌ Forms with CSRF tokens
+- ❌ Real-time data (stock prices, live scores)
+- ❌ Preview/editing mode (automatically handled)
+
+**Preview Mode**:
+HST automatically disables caching in preview mode, so editors always see fresh content.
+
+**Cache Invalidation**:
+Configure cache invalidation in your component:
+```java
+@Override
+public void doBeforeRender(HstRequest request, HstResponse response) {
+    // Cache for 5 minutes
+    response.setHeader(&quot;Cache-Control&quot;, &quot;max-age=300&quot;);
+}
+```
+
+**References**:
+- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)
+- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)</pre>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+        <footer>
+            <p>Generated by <strong>Bloomreach CMS Mega-Inspections Analysis Tool</strong></p>
+            <p class="footer-note">For more information, visit <a href="https://github.com/bloomreach">Bloomreach on GitHub</a></p>
+        </footer>
+    </div>
+</body>
+</html>

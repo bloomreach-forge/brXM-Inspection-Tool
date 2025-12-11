@@ -1,0 +1,197 @@
+package org.bloomreach.inspections.core.inspections.config
+
+import org.bloomreach.inspections.core.engine.*
+import org.bloomreach.inspections.core.config.InspectionConfig
+import org.bloomreach.inspections.core.model.ProjectIndex
+import org.bloomreach.inspections.core.model.UuidDefinition
+import org.junit.jupiter.api.Test
+import java.nio.file.Path
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class BootstrapUuidConflictInspectionTest {
+
+    private val inspection = BootstrapUuidConflictInspection()
+
+    @Test
+    fun `should not report issues for unique UUIDs`() {
+        val xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sv:node xmlns:sv="http://www.jcp.org/jcr/sv/1.0" sv:name="mynode">
+              <sv:property sv:name="jcr:uuid" sv:type="String">
+                <sv:value>12345678-1234-1234-1234-123456789abc</sv:value>
+              </sv:property>
+            </sv:node>
+        """.trimIndent()
+
+        val file = createVirtualFile("hippoecm-extension.xml", xml)
+        val context = createContext(file)
+
+        val issues = inspection.inspect(context)
+
+        assertEquals(0, issues.size, "Should not report issues for unique UUIDs")
+    }
+
+    @Test
+    fun `should detect duplicate UUIDs in same file`() {
+        val xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sv:node xmlns:sv="http://www.jcp.org/jcr/sv/1.0" sv:name="root">
+              <sv:node sv:name="node1">
+                <sv:property sv:name="jcr:uuid" sv:type="String">
+                  <sv:value>12345678-1234-1234-1234-123456789abc</sv:value>
+                </sv:property>
+              </sv:node>
+              <sv:node sv:name="node2">
+                <sv:property sv:name="jcr:uuid" sv:type="String">
+                  <sv:value>12345678-1234-1234-1234-123456789abc</sv:value>
+                </sv:property>
+              </sv:node>
+            </sv:node>
+        """.trimIndent()
+
+        val file = createVirtualFile("hippoecm-extension.xml", xml)
+        val context = createContext(file)
+
+        val issues = inspection.inspect(context)
+
+        assertEquals(1, issues.size, "Should detect duplicate UUID in same file")
+        assertTrue(issues[0].message.contains("Duplicate UUID"))
+        assertEquals(Severity.ERROR, issues[0].severity)
+    }
+
+    @Test
+    fun `should detect UUID conflicts across files`() {
+        val xml1 = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sv:node xmlns:sv="http://www.jcp.org/jcr/sv/1.0" sv:name="node1">
+              <sv:property sv:name="jcr:uuid" sv:type="String">
+                <sv:value>12345678-1234-1234-1234-123456789abc</sv:value>
+              </sv:property>
+            </sv:node>
+        """.trimIndent()
+
+        val xml2 = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sv:node xmlns:sv="http://www.jcp.org/jcr/sv/1.0" sv:name="node2">
+              <sv:property sv:name="jcr:uuid" sv:type="String">
+                <sv:value>12345678-1234-1234-1234-123456789abc</sv:value>
+              </sv:property>
+            </sv:node>
+        """.trimIndent()
+
+        val file1 = createVirtualFile("hippoecm-extension.xml", xml1, "file1")
+        val file2 = createVirtualFile("hippoecm-extension.xml", xml2, "file2")
+
+        val projectIndex = ProjectIndex()
+
+        // Inspect first file
+        val context1 = createContext(file1, projectIndex)
+        val issues1 = inspection.inspect(context1)
+
+        // Inspect second file (should detect conflict)
+        val context2 = createContext(file2, projectIndex)
+        val issues2 = inspection.inspect(context2)
+
+        assertTrue(issues2.isNotEmpty(), "Should detect cross-file UUID conflict")
+        assertTrue(issues2[0].message.contains("conflicts with"))
+    }
+
+    @Test
+    fun `should ignore non-hippoecm-extension files`() {
+        val xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sv:node xmlns:sv="http://www.jcp.org/jcr/sv/1.0" sv:name="node">
+              <sv:property sv:name="jcr:uuid" sv:type="String">
+                <sv:value>12345678-1234-1234-1234-123456789abc</sv:value>
+              </sv:property>
+            </sv:node>
+        """.trimIndent()
+
+        val file = createVirtualFile("some-other-file.xml", xml)
+        val context = createContext(file)
+
+        val issues = inspection.inspect(context)
+
+        assertEquals(0, issues.size, "Should ignore non-hippoecm-extension.xml files")
+    }
+
+    @Test
+    fun `should handle malformed XML gracefully`() {
+        val malformedXml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sv:node xmlns:sv="http://www.jcp.org/jcr/sv/1.0" sv:name="node">
+              <sv:property sv:name="jcr:uuid" sv:type="String">
+                <sv:value>12345678-1234-1234-1234-123456789abc
+            </sv:node>
+        """.trimIndent()
+
+        val file = createVirtualFile("hippoecm-extension.xml", malformedXml)
+        val context = createContext(file)
+
+        val issues = inspection.inspect(context)
+
+        // Should not crash, just return empty list
+        assertTrue(issues.isEmpty())
+    }
+
+    @Test
+    fun `should handle multiple UUID properties correctly`() {
+        val xml = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <sv:node xmlns:sv="http://www.jcp.org/jcr/sv/1.0" sv:name="root">
+              <sv:node sv:name="node1">
+                <sv:property sv:name="jcr:uuid" sv:type="String">
+                  <sv:value>11111111-1111-1111-1111-111111111111</sv:value>
+                </sv:property>
+              </sv:node>
+              <sv:node sv:name="node2">
+                <sv:property sv:name="jcr:uuid" sv:type="String">
+                  <sv:value>22222222-2222-2222-2222-222222222222</sv:value>
+                </sv:property>
+              </sv:node>
+              <sv:node sv:name="node3">
+                <sv:property sv:name="jcr:uuid" sv:type="String">
+                  <sv:value>33333333-3333-3333-3333-333333333333</sv:value>
+                </sv:property>
+              </sv:node>
+            </sv:node>
+        """.trimIndent()
+
+        val file = createVirtualFile("hippoecm-extension.xml", xml)
+        val context = createContext(file)
+
+        val issues = inspection.inspect(context)
+
+        assertEquals(0, issues.size, "Should not report issues when all UUIDs are unique")
+    }
+
+    // Helper methods
+
+    private fun createVirtualFile(name: String, content: String, uniqueName: String = name): VirtualFile {
+        return object : VirtualFile {
+            override val path: Path = Path.of("/test/$uniqueName")
+            override val name: String = name
+            override val extension: String = name.substringAfterLast('.', "")
+            override fun readText(): String = content
+            override fun exists(): Boolean = true
+            override fun size(): Long = content.length.toLong()
+            override fun lastModified(): Long = System.currentTimeMillis()
+        }
+    }
+
+    private fun createContext(
+        file: VirtualFile,
+        projectIndex: ProjectIndex = ProjectIndex()
+    ): InspectionContext {
+        return InspectionContext(
+            file = file,
+            fileContent = file.readText(),
+            language = FileType.XML,
+            projectRoot = Path.of("/test"),
+            projectIndex = projectIndex,
+            config = InspectionConfig(),
+            cache = InspectionCache()
+        )
+    }
+}

@@ -1,0 +1,248 @@
+package org.bloomreach.inspections.core.inspections.performance
+
+import org.bloomreach.inspections.core.engine.*
+import org.junit.jupiter.api.Test
+import java.nio.file.Path
+import kotlin.test.assertEquals
+import kotlin.test.assertTrue
+
+class UnboundedQueryInspectionTest {
+
+    private val inspection = UnboundedQueryInspection()
+
+    @Test
+    fun `should detect query without setLimit`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+            import javax.jcr.query.QueryResult;
+
+            public class NewsService {
+                public void getNews(QueryManager queryManager) throws Exception {
+                    Query query = queryManager.createQuery("SELECT * FROM [hippostd:folder]", Query.JCR_SQL2);
+                    QueryResult result = query.execute();
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(1, issues.size, "Should detect unbounded query")
+        assertTrue(issues[0].message.contains("without setLimit()"))
+        assertEquals(Severity.WARNING, issues[0].severity)
+    }
+
+    @Test
+    fun `should not report issue when setLimit is called`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+            import javax.jcr.query.QueryResult;
+
+            public class NewsService {
+                public void getNews(QueryManager queryManager) throws Exception {
+                    Query query = queryManager.createQuery("SELECT * FROM [hippostd:folder]", Query.JCR_SQL2);
+                    query.setLimit(100);
+                    QueryResult result = query.execute();
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(0, issues.size, "Should not report issue when setLimit is called")
+    }
+
+    @Test
+    fun `should detect inline query without limit`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+            import javax.jcr.query.QueryResult;
+
+            public class NewsService {
+                public void getNews(QueryManager queryManager) throws Exception {
+                    QueryResult result = queryManager.createQuery("SELECT * FROM [nt:base]", Query.JCR_SQL2).execute();
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(1, issues.size, "Should detect inline query without limit")
+        assertTrue(issues[0].message.contains("Inline query"))
+    }
+
+    @Test
+    fun `should not report issue for query created but not executed`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+
+            public class NewsService {
+                public void prepareQuery(QueryManager queryManager) throws Exception {
+                    Query query = queryManager.createQuery("SELECT * FROM [hippostd:folder]", Query.JCR_SQL2);
+                    // Query not executed
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(0, issues.size, "Should not report issue for query not executed")
+    }
+
+    @Test
+    fun `should handle multiple queries in same method`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+            import javax.jcr.query.QueryResult;
+
+            public class NewsService {
+                public void getTwoTypes(QueryManager queryManager) throws Exception {
+                    Query query1 = queryManager.createQuery("SELECT * FROM [type1]", Query.JCR_SQL2);
+                    query1.setLimit(50);
+                    QueryResult result1 = query1.execute();
+
+                    Query query2 = queryManager.createQuery("SELECT * FROM [type2]", Query.JCR_SQL2);
+                    QueryResult result2 = query2.execute();
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(1, issues.size, "Should detect only the unbounded query")
+        assertTrue(issues[0].message.contains("query2"))
+    }
+
+    @Test
+    fun `should detect getQuery method calls`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryResult;
+
+            public class NewsService {
+                public void execute(Query query) throws Exception {
+                    QueryResult result = query.execute();
+                }
+            }
+        """.trimIndent()
+
+        // This test shows the limitation - we can't detect queries passed as parameters
+        // without more sophisticated analysis. This is acceptable for MVP.
+        val issues = runInspection(code)
+
+        assertEquals(0, issues.size, "Cannot detect query passed as parameter (known limitation)")
+    }
+
+    @Test
+    fun `should detect executeQuery method`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+
+            public class NewsService {
+                public void search(QueryManager qm) throws Exception {
+                    Query q = qm.createQuery("...", Query.JCR_SQL2);
+                    q.execute();
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(1, issues.size, "Should detect execute() call")
+    }
+
+    @Test
+    fun `should handle setLimit with different variable names`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+            import javax.jcr.query.QueryResult;
+
+            public class NewsService {
+                public void search(QueryManager qm) throws Exception {
+                    Query myQuery = qm.createQuery("...", Query.JCR_SQL2);
+                    myQuery.setLimit(200);
+                    QueryResult results = myQuery.execute();
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(0, issues.size, "Should recognize setLimit on any variable name")
+    }
+
+    @Test
+    fun `should provide quick fix suggestion`() {
+        val code = """
+            package com.example;
+
+            import javax.jcr.query.Query;
+            import javax.jcr.query.QueryManager;
+            import javax.jcr.query.QueryResult;
+
+            public class NewsService {
+                public void getNews(QueryManager queryManager) throws Exception {
+                    Query query = queryManager.createQuery("SELECT * FROM [hippostd:folder]", Query.JCR_SQL2);
+                    QueryResult result = query.execute();
+                }
+            }
+        """.trimIndent()
+
+        val issues = runInspection(code)
+
+        assertEquals(1, issues.size)
+        val quickFixes = inspection.getQuickFixes(issues[0])
+        assertTrue(quickFixes.isNotEmpty(), "Should provide quick fix")
+        assertTrue(quickFixes[0].name.contains("setLimit"))
+    }
+
+    // Helper methods
+
+    private fun runInspection(code: String): List<InspectionIssue> {
+        val file = createVirtualFile("NewsService.java", code)
+        val context = InspectionContext(
+            file = file,
+            fileContent = code,
+            language = FileType.JAVA,
+            projectRoot = Path.of("/test"),
+            projectIndex = ProjectIndex(),
+            config = InspectionConfig()
+        )
+
+        return inspection.inspect(context)
+    }
+
+    private fun createVirtualFile(name: String, content: String): VirtualFile {
+        return object : VirtualFile {
+            override val path: Path = Path.of("/test/src/$name")
+            override val name: String = name
+            override val extension: String = "java"
+            override fun readText(): String = content
+            override fun exists(): Boolean = true
+            override fun size(): Long = content.length.toLong()
+            override fun lastModified(): Long = System.currentTimeMillis()
+        }
+    }
+}
