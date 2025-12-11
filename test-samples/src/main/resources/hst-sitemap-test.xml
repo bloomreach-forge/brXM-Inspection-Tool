@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Test file to verify Sitemap shadowing inspection works.
+
+  This should trigger:
+  - WARNING: Pattern shadowing detected
+-->
+<hst:sitemap xmlns:hst="http://www.hippoecm.org/cms7/hst">
+
+  <!-- BAD: General pattern defined BEFORE specific pattern -->
+  <hst:sitemapitem hst:componentconfigurationid="pages/news">
+    <hst:sitemapitem hst:componentconfigurationid="pages/newsitem">
+      <hst:sitemapitemref hst:refId="news-overview"/>  <!-- ← General pattern -->
+    </hst:sitemapitem>
+  </hst:sitemapitem>
+
+  <!-- BAD: More specific pattern comes AFTER - will be shadowed! -->
+  <hst:sitemapitem hst:componentconfigurationid="pages/news">
+    <hst:sitemapitem hst:componentconfigurationid="pages/newsitem">
+      <hst:sitemapitem hst:componentconfigurationid="pages/newsdetail">
+        <hst:sitemapitemref hst:refId="news-detail"/>  <!-- ← Should show WARNING -->
+      </hst:sitemapitem>
+    </hst:sitemapitem>
+  </hst:sitemapitem>
+
+  <!-- GOOD: Specific patterns before general ones -->
+  <hst:sitemapitem hst:componentconfigurationid="pages/products">
+    <!-- Most specific first -->
+    <hst:sitemapitem hst:componentconfigurationid="pages/productdetail">
+      <hst:sitemapitemref hst:refId="product-detail"/>
+    </hst:sitemapitem>
+    <!-- Then more general -->
+    <hst:sitemapitem hst:componentconfigurationid="pages/productlist">
+      <hst:sitemapitemref hst:refId="product-list"/>
+    </hst:sitemapitem>
+  </hst:sitemapitem>
+
+</hst:sitemap>

@@ -1,0 +1,146 @@
+{
+  "metadata" : {
+    "tool" : "Bloomreach CMS Inspections",
+    "version" : "1.0.0",
+    "timestamp" : "2025-12-10T12:18:11.120159",
+    "projectRoot" : "test-samples/src/main/resources"
+  },
+  "summary" : {
+    "totalIssues" : 11,
+    "errors" : 2,
+    "warnings" : 9,
+    "info" : 0,
+    "hints" : 0
+  },
+  "byCategory" : [ {
+    "category" : "CONFIGURATION",
+    "displayName" : "Configuration Problems",
+    "count" : 8
+  }, {
+    "category" : "REPOSITORY_TIER",
+    "displayName" : "Repository Tier Issues",
+    "count" : 2
+  }, {
+    "category" : "PERFORMANCE",
+    "displayName" : "Performance Issues",
+    "count" : 1
+  } ],
+  "bySeverity" : [ {
+    "severity" : "WARNING",
+    "count" : 9
+  }, {
+    "severity" : "ERROR",
+    "count" : 2
+  } ],
+  "issues" : [ {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "config.cache-configuration",
+    "name" : "Cache Configuration Issues",
+    "severity" : "WARNING",
+    "category" : "CONFIGURATION",
+    "file" : "test-samples/src/main/resources/hst-sitemap-test.xml",
+    "line" : 1,
+    "column" : 0,
+    "message" : "Sitemap item '' missing cache configuration",
+    "description" : "The sitemap item '' has a component reference but no hst:cacheable property defined.\n\n**Performance Impact**: HIGH - Uncached pages cause unnecessary rendering on every request.\n\n**Why Caching Matters**:\n- Cached pages can be 10-100x faster\n- Reduces CPU and database load\n- Improves user experience\n- Reduces infrastructure costs\n\n**Problem Pattern**:\n```xml\n<!-- ⚠️ PROBLEM - No caching defined -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n</hst:sitemapitem>\n```\n\n**Correct Pattern - Enable Caching**:\n```xml\n<!-- ✅ CORRECT - Caching enabled -->\n<hst:sitemapitem hst:name=\"news\">\n  <hst:componentconfigurationid>news-overview</hst:componentconfigurationid>\n  <hst:relativecontentpath>news</hst:relativecontentpath>\n  <hst:cacheable>true</hst:cacheable>\n</hst:sitemapitem>\n```\n\n**YAML Format**:\n```yaml\nnews:\n  componentconfigurationid: news-overview\n  relativecontentpath: news\n  cacheable: true  # Add this!\n```\n\n**When to Enable Caching**:\n- ✅ Static content pages (About, Contact, etc.)\n- ✅ News articles and blog posts\n- ✅ Product listings\n- ✅ Navigation menus\n- ✅ Search results (with cache per query)\n\n**When to Disable Caching**:\n- ❌ User-specific content (profile, dashboard)\n- ❌ Shopping cart and checkout\n- ❌ Forms with CSRF tokens\n- ❌ Real-time data (stock prices, live scores)\n- ❌ Preview/editing mode (automatically handled)\n\n**Preview Mode**:\nHST automatically disables caching in preview mode, so editors always see fresh content.\n\n**Cache Invalidation**:\nConfigure cache invalidation in your component:\n```java\n@Override\npublic void doBeforeRender(HstRequest request, HstResponse response) {\n    // Cache for 5 minutes\n    response.setHeader(\"Cache-Control\", \"max-age=300\");\n}\n```\n\n**References**:\n- [HST Caching Documentation](https://xmdocumentation.bloomreach.com/)\n- [Performance Tuning Guide](https://xmdocumentation.bloomreach.com/)"
+  }, {
+    "id" : "repository.session-leak",
+    "name" : "JCR Session Leak Detection",
+    "severity" : "ERROR",
+    "category" : "REPOSITORY_TIER",
+    "file" : "test-samples/src/main/java/com/test/TestSessionLeak.java",
+    "line" : 21,
+    "column" : 17,
+    "message" : "JCR Session 'session' is not closed in finally block",
+    "description" : "The JCR session 'session' is created but not properly closed in a finally block.\nThis can lead to session pool exhaustion and memory leaks.\n\n**Impact**: High - Can cause application crashes and performance degradation\n\n**Best Practice**: Always close sessions in a finally block or use try-with-resources (Java 7+).\n\n**Example (finally block)**:\n```java\nSession session = null;\ntry {\n    session = repository.login();\n    // ... work with session\n} finally {\n    if (session != null && session.isLive()) {\n        session.logout();\n    }\n}\n```\n\n**Example (try-with-resources, recommended)**:\n```java\ntry (Session session = repository.login()) {\n    // ... work with session\n} // session automatically closed\n```\n\n**Related Community Issues**:\n- NoAvailableSessionException - Session pool exhaustion\n- OutOfMemoryError - Memory leak from unclosed sessions\n\n**References**:\n- [JCR Session Management Best Practices](https://xmdocumentation.bloomreach.com/)\n- [Community Forum: Session Pool Exhaustion](https://community.bloomreach.com/)"
+  }, {
+    "id" : "repository.session-leak",
+    "name" : "JCR Session Leak Detection",
+    "severity" : "ERROR",
+    "category" : "REPOSITORY_TIER",
+    "file" : "test-samples/src/main/java/com/test/TestSessionLeak.java",
+    "line" : 49,
+    "column" : 22,
+    "message" : "JCR Session 'session' is not closed in finally block",
+    "description" : "The JCR session 'session' is created but not properly closed in a finally block.\nThis can lead to session pool exhaustion and memory leaks.\n\n**Impact**: High - Can cause application crashes and performance degradation\n\n**Best Practice**: Always close sessions in a finally block or use try-with-resources (Java 7+).\n\n**Example (finally block)**:\n```java\nSession session = null;\ntry {\n    session = repository.login();\n    // ... work with session\n} finally {\n    if (session != null && session.isLive()) {\n        session.logout();\n    }\n}\n```\n\n**Example (try-with-resources, recommended)**:\n```java\ntry (Session session = repository.login()) {\n    // ... work with session\n} // session automatically closed\n```\n\n**Related Community Issues**:\n- NoAvailableSessionException - Session pool exhaustion\n- OutOfMemoryError - Memory leak from unclosed sessions\n\n**References**:\n- [JCR Session Management Best Practices](https://xmdocumentation.bloomreach.com/)\n- [Community Forum: Session Pool Exhaustion](https://community.bloomreach.com/)"
+  }, {
+    "id" : "performance.unbounded-query",
+    "name" : "Unbounded JCR Query",
+    "severity" : "WARNING",
+    "category" : "PERFORMANCE",
+    "file" : "test-samples/src/main/java/com/test/TestUnboundedQuery.java",
+    "line" : 23,
+    "column" : 15,
+    "message" : "Query 'query' executed without setLimit()",
+    "description" : "The JCR query 'query' is executed without calling setLimit().\nThis can cause serious performance issues if the result set is large.\n\n**Impact**: HIGH - Can cause OutOfMemoryError and application crashes\n\n**Symptoms**:\n- Slow page load times\n- High memory consumption\n- Database connection exhaustion\n- Application becomes unresponsive\n\n**Example Problem**:\n```java\nQuery query = queryManager.createQuery(\n    \"SELECT * FROM [hippostd:folder]\", Query.JCR_SQL2);\nQueryResult result = query.execute(); // ⚠️ No limit!\n// Could return 10,000+ nodes → OutOfMemoryError\n```\n\n**Correct Usage**:\n```java\nQuery query = queryManager.createQuery(\n    \"SELECT * FROM [hippostd:folder]\", Query.JCR_SQL2);\nquery.setLimit(100);  // ✓ Always set a limit\nQueryResult result = query.execute();\n```\n\n**Recommended Limits**:\n- List pages: 20-50 items\n- Search results: 100-500 items\n- Bulk operations: 1000 max (with pagination)\n- Admin operations: Consider if unbounded is truly needed\n\n**Alternative: Pagination**:\n```java\nlong offset = 0;\nlong pageSize = 100;\n\nwhile (true) {\n    query.setOffset(offset);\n    query.setLimit(pageSize);\n    QueryResult result = query.execute();\n\n    // Process results...\n\n    if (result.getNodes().getSize() < pageSize) {\n        break; // Last page\n    }\n    offset += pageSize;\n}\n```\n\n**Performance Tips**:\n- Use specific node types in queries (not [nt:base])\n- Add WHERE clauses to filter results\n- Ensure indexed properties are used in WHERE clauses\n- Consider using Lucene/Solr for complex searches\n\n**Related Community Issues**:\n- [Site brought down by indexing error](https://community.bloomreach.com/t/site-brought-down-potentially-by-indexing-error/2437)\n- OutOfMemoryError from large query results\n- Slow performance with faceted navigation\n\n**References**:\n- [JCR Query Best Practices](https://xmdocumentation.bloomreach.com/)\n- [Performance Optimization Guide](https://xmdocumentation.bloomreach.com/)"
+  } ]
+}

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Console appender for CLI output - compact format without stack traces -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%-5level: %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Root logger - ERROR level by default (cleaner output) -->
+    <root level="ERROR">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Package-specific logging -->
+    <logger name="org.bloomreach.inspections" level="ERROR" />
+
+    <!-- Silence other verbose libraries -->
+    <logger name="org.apache" level="ERROR" />
+    <logger name="ch.qos.logback" level="ERROR" />
+</configuration>

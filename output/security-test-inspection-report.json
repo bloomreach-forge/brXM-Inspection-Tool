@@ -1,0 +1,45 @@
+{
+  "metadata" : {
+    "tool" : "Bloomreach CMS Inspections",
+    "version" : "1.0.0",
+    "timestamp" : "2025-12-10T12:19:51.68123",
+    "projectRoot" : "/tmp/security-test/src/main/java/com/example"
+  },
+  "summary" : {
+    "totalIssues" : 2,
+    "errors" : 2,
+    "warnings" : 0,
+    "info" : 0,
+    "hints" : 0
+  },
+  "byCategory" : [ {
+    "category" : "SECURITY",
+    "displayName" : "Security Issues",
+    "count" : 2
+  } ],
+  "bySeverity" : [ {
+    "severity" : "ERROR",
+    "count" : 2
+  } ],
+  "issues" : [ {
+    "id" : "security.hardcoded-credentials",
+    "name" : "Hardcoded Credentials",
+    "severity" : "ERROR",
+    "category" : "SECURITY",
+    "file" : "/tmp/security-test/src/main/java/com/example/Production.java",
+    "line" : 5,
+    "column" : 20,
+    "message" : "Hardcoded API Key: 'apiKey'",
+    "description" : "See HardcodedCredentialsInspection for full documentation.\n\nVariable: apiKey\nType: API Key\nMasked Value: sk******************45\n\nUse environment variables or external configuration instead."
+  }, {
+    "id" : "security.hardcoded-credentials",
+    "name" : "Hardcoded Credentials",
+    "severity" : "ERROR",
+    "category" : "SECURITY",
+    "file" : "/tmp/security-test/src/main/java/com/example/Production.java",
+    "line" : 8,
+    "column" : 16,
+    "message" : "Hardcoded Password: 'password'",
+    "description" : "See HardcodedCredentialsInspection for full documentation.\n\nVariable: password\nType: Password\nMasked Value: Pr*****************23\n\nUse environment variables or external configuration instead."
+  } ]
+}
