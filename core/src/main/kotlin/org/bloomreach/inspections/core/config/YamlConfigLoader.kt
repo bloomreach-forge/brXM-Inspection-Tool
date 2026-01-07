@@ -163,10 +163,10 @@ object YamlConfigLoader {
 
             # File patterns to exclude from analysis
             excludePaths:
-              - "**/target/**"
-              - "**/build/**"
-              - "**/node_modules/**"
-              - "**/.git/**"
+              - "**target/**"
+              - "**build/**"
+              - "**node_modules/**"
+              - "**.git/**"
 
             # File patterns to include in analysis
             includePaths:

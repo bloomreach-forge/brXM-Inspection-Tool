@@ -116,7 +116,7 @@ class ConfigCommand : Runnable {
 
         println("\nFile Patterns:")
         println("  Include: ${config.includePaths?.joinToString(", ") ?: "*.java, *.xml, *.yaml, *.yml, *.json"}")
-        println("  Exclude: ${config.excludePaths?.joinToString(", ") ?: "**/target/**, **/build/**, **/node_modules/**, **/.git/**"}")
+        println("  Exclude: ${config.excludePaths?.joinToString(", ") ?: "**target/**, **build/**, **node_modules/**, **.git/**"}")
 
         if (config.inspections?.isNotEmpty() == true) {
             println("\nPer-Inspection Configuration:")

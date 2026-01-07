@@ -18,7 +18,7 @@ import kotlin.system.exitProcess
     name = "brxm-inspect",
     description = ["Bloomreach CMS Static Analysis Tool"],
     mixinStandardHelpOptions = true,
-    version = ["1.0.0"],
+    version = ["1.0.1"],
     subcommands = [
         AnalyzeCommand::class,
         ListInspectionsCommand::class,

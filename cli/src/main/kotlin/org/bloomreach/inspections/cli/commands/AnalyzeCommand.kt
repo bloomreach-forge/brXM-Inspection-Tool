@@ -171,11 +171,15 @@ class AnalyzeCommand : Runnable {
 
         // Start with file config or defaults
         val baseConfig = cliConfig ?: org.bloomreach.inspections.cli.config.CliConfig.default()
+        val defaultConfig = org.bloomreach.inspections.core.config.InspectionConfig.default()
 
-        // Command-line options override config file
+        // Command-line options override config file, which overrides defaults
         val severity = Severity.valueOf(minSeverity.uppercase())
-        val excludePaths = excludePatterns?.toList() ?: baseConfig.excludePaths ?: emptyList()
-        val includePaths = baseConfig.includePaths ?: listOf("**/*.java", "**/*.xml", "**/*.yaml", "**/*.yml", "**/*.json")
+        val excludePaths = excludePatterns?.toList()
+            ?: baseConfig.excludePaths
+            ?: defaultConfig.excludePaths
+        val includePaths = baseConfig.includePaths
+            ?: defaultConfig.includePaths
 
         return InspectionConfig(
             enabled = baseConfig.enabled ?: true,

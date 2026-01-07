@@ -22,7 +22,7 @@ class FileScannerTest {
             enabled = true,
             minSeverity = Severity.INFO,
             includePaths = listOf("**/*.java", "**/*.xml"),
-            excludePaths = listOf("**/target/**", "**/build/**")
+            excludePaths = listOf("**target/**", "**build/**")
         )
 
         scanner = FileScanner(config)
@@ -184,5 +184,85 @@ class FileScannerTest {
         assertEquals(vf1, vf2)
         assertEquals(vf1.hashCode(), vf2.hashCode())
         assertTrue(vf1 != vf3)
+    }
+
+    @Test
+    fun `should exclude files in root-level target directory`() {
+        val srcDir = testDir.resolve("src/main/java")
+        Files.createDirectories(srcDir)
+        Files.createFile(srcDir.resolve("Main.java"))
+
+        val targetDir = testDir.resolve("target/classes")
+        Files.createDirectories(targetDir)
+        Files.createFile(targetDir.resolve("Main.class"))
+        Files.createFile(targetDir.resolve("config.xml"))
+
+        val results = scanner.scan(testDir)
+
+        // Should include Main.java from src, but exclude files from root target
+        assertEquals(1, results.size)
+        assertEquals("Main.java", results.first().name)
+        assertTrue(results.none { it.path.toString().contains("target") })
+    }
+
+    @Test
+    fun `should exclude files in nested target directories`() {
+        val srcDir = testDir.resolve("src/main/java")
+        Files.createDirectories(srcDir)
+        Files.createFile(srcDir.resolve("Main.java"))
+
+        // Create nested target directories at different levels
+        val nestedTarget1 = testDir.resolve("src/target/classes")
+        Files.createDirectories(nestedTarget1)
+        Files.createFile(nestedTarget1.resolve("Compiled.class"))
+        Files.createFile(nestedTarget1.resolve("config.xml"))
+
+        val nestedTarget2 = testDir.resolve("src/main/target/generated")
+        Files.createDirectories(nestedTarget2)
+        Files.createFile(nestedTarget2.resolve("Generated.java"))
+
+        val results = scanner.scan(testDir)
+
+        // Should only include Main.java from src/main/java, exclude all target directories
+        assertEquals(1, results.size)
+        assertEquals("Main.java", results.first().name)
+        assertTrue(results.none { it.path.toString().contains("target") })
+    }
+
+    @Test
+    fun `should exclude files in root-level build directory`() {
+        val srcDir = testDir.resolve("src/main/java")
+        Files.createDirectories(srcDir)
+        Files.createFile(srcDir.resolve("Main.java"))
+
+        val buildDir = testDir.resolve("build/classes")
+        Files.createDirectories(buildDir)
+        Files.createFile(buildDir.resolve("Main.class"))
+
+        val results = scanner.scan(testDir)
+
+        // Should include Main.java from src, but exclude files from root build
+        assertEquals(1, results.size)
+        assertEquals("Main.java", results.first().name)
+        assertTrue(results.none { it.path.toString().contains("build") })
+    }
+
+    @Test
+    fun `should exclude files in nested build directories`() {
+        val srcDir = testDir.resolve("src/main/java")
+        Files.createDirectories(srcDir)
+        Files.createFile(srcDir.resolve("Main.java"))
+
+        // Create nested build directories
+        val nestedBuild = testDir.resolve("modules/api/build/output")
+        Files.createDirectories(nestedBuild)
+        Files.createFile(nestedBuild.resolve("Output.jar"))
+
+        val results = scanner.scan(testDir)
+
+        // Should only include Main.java from src/main/java, exclude nested build directories
+        assertEquals(1, results.size)
+        assertEquals("Main.java", results.first().name)
+        assertTrue(results.none { it.path.toString().contains("build") })
     }
 }

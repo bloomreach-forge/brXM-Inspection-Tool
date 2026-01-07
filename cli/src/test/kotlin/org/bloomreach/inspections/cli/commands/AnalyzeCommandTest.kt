@@ -106,7 +106,7 @@ class AnalyzeCommandTest {
     @Test
     fun `should support exclude patterns`() {
         val command = AnalyzeCommand()
-        command.excludePatterns = arrayOf("**/target/**", "**/build/**")
+        command.excludePatterns = arrayOf("**target/**", "**build/**")
 
         assertEquals(2, command.excludePatterns?.size)
     }

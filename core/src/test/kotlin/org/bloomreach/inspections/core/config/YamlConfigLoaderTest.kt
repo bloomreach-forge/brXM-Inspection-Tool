@@ -35,8 +35,8 @@ class YamlConfigLoaderTest {
             maxThreads: 4
 
             excludePaths:
-              - "**/target/**"
-              - "**/build/**"
+              - "**target/**"
+              - "**build/**"
 
             includePaths:
               - "**/*.java"
@@ -62,7 +62,7 @@ class YamlConfigLoaderTest {
         assertEquals(4, config.maxThreads)
 
         assertEquals(2, config.excludePaths.size)
-        assertTrue(config.excludePaths.contains("**/target/**"))
+        assertTrue(config.excludePaths.contains("**target/**"))
 
         assertEquals(2, config.includePaths.size)
         assertTrue(config.includePaths.contains("**/*.java"))
