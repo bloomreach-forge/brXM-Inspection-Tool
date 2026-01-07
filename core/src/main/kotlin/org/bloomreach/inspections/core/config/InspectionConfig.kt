@@ -14,10 +14,10 @@ data class InspectionConfig(
 
     /** Glob patterns for files to exclude */
     val excludePaths: List<String> = listOf(
-        "**/target/**",
-        "**/build/**",
-        "**/node_modules/**",
-        "**/.git/**"
+        "**target/**",
+        "**build/**",
+        "**node_modules/**",
+        "**.git/**"
     ),
 
     /** Glob patterns for files to include */

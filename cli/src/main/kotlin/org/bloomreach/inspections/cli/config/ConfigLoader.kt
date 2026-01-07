@@ -143,10 +143,10 @@ data class CliConfig(
                     "**/*.json"
                 ),
                 excludePaths = listOf(
-                    "**/target/**",
-                    "**/build/**",
-                    "**/node_modules/**",
-                    "**/.git/**"
+                    "**target/**",
+                    "**build/**",
+                    "**node_modules/**",
+                    "**.git/**"
                 ),
                 inspections = emptyMap()
             )

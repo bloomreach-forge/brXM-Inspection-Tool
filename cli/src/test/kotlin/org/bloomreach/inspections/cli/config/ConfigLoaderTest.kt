@@ -33,7 +33,7 @@ class ConfigLoaderTest {
               - "**/*.java"
               - "**/*.xml"
             excludePaths:
-              - "**/target/**"
+              - "**target/**"
         """.trimIndent()
 
         Files.writeString(configPath, yaml)
@@ -109,7 +109,7 @@ class ConfigLoaderTest {
             maxThreads = 8,
             cacheEnabled = false,
             includePaths = listOf("**/*.java"),
-            excludePaths = listOf("**/target/**")
+            excludePaths = listOf("**target/**")
         )
 
         configLoader.saveConfig(config, configPath)

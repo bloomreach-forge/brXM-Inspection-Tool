@@ -27,7 +27,7 @@ class ProjectAnalyzerTest {
             enabled = true,
             minSeverity = Severity.INFO,
             includePaths = listOf("**/*.java"),
-            excludePaths = listOf("**/target/**")
+            excludePaths = listOf("**target/**")
         )
 
         analyzer = ProjectAnalyzer(config)
