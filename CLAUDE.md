@@ -360,57 +360,179 @@ Create `core/src/main/resources/META-INF/services/org.bloomreach.inspections.cor
 org.bloomreach.inspections.core.inspections.repository.MyInspection
 ```
 
-## Implemented Inspections
+## Implemented Inspections (27 Total)
 
-### 1. SessionLeakInspection ✅
+### Repository Tier (6 inspections)
 
-**ID**: `repository.session-leak`
-**Severity**: ERROR
-**Priority**: CRITICAL (40% of repository issues)
+1. **SessionLeakInspection** ✅
+   - **ID**: `repository.session-leak`
+   - **Severity**: ERROR
+   - **Detects**: JCR sessions not closed in finally blocks
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/repository/SessionLeakInspection.kt`
 
-**Detects**: JCR sessions not closed in finally blocks
+2. **SessionRefreshInspection** ✅
+   - **ID**: `repository.session-refresh`
+   - **Severity**: WARNING
+   - **Detects**: Dangerous use of session.refresh() that can lose unsaved changes
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/repository/SessionRefreshInspection.kt`
 
-**Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/repository/SessionLeakInspection.kt`
+3. **ContentBeanMappingInspection** ✅
+   - **ID**: `repository.content-bean-mapping`
+   - **Severity**: WARNING
+   - **Detects**: Improper @HippoBean annotation usage and content bean mapping issues
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/repository/ContentBeanMappingInspection.kt`
 
-**Patterns Detected**:
-- `repository.login()` without `session.logout()` in finally
-- `getSession()` calls without cleanup
-- `impersonate()` calls without logout
+4. **DocumentWorkflowInspection** ✅
+   - **ID**: `repository.document-workflow`
+   - **Severity**: WARNING
+   - **Detects**: Missing or incorrect document workflow configuration
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/repository/DocumentWorkflowInspection.kt`
 
-**Quick Fixes**:
-- Add finally block with session.logout()
-- Convert to try-with-resources
+5. **WorkflowActionInspection** ✅
+   - **ID**: `repository.workflow-action`
+   - **Severity**: ERROR
+   - **Detects**: Unavailable workflow actions and incorrect action definitions
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/repository/WorkflowActionInspection.kt`
 
-**Test**: `SessionLeakInspectionTest.kt`
+### Configuration (10 inspections)
 
-## Pending Inspections (Priority Order)
+6. **BootstrapUuidConflictInspection** ✅
+   - **ID**: `config.bootstrap-uuid-conflict`
+   - **Severity**: ERROR
+   - **Detects**: Duplicate UUIDs in hippoecm-extension.xml bootstrap files
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/BootstrapUuidConflictInspection.kt`
 
-### Sprint 2 Target (5 inspections)
+7. **SitemapShadowingInspection** ✅
+   - **ID**: `config.sitemap-shadowing`
+   - **Severity**: WARNING
+   - **Detects**: HST sitemap patterns that shadow each other
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/SitemapShadowingInspection.kt`
 
-1. **BootstrapUuidConflictInspection** (ERROR)
-   - Detect duplicate UUIDs in hippoecm-extension.xml
-   - Use ProjectIndex for cross-file detection
-   - Category: CONFIGURATION
+8. **ComponentParameterNullInspection** ✅
+   - **ID**: `config.component-parameter-null`
+   - **Severity**: WARNING
+   - **Detects**: Missing null checks on HST getParameter() calls
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/ComponentParameterNullInspection.kt`
 
-2. **SitemapShadowingInspection** (WARNING)
-   - HST sitemap patterns that shadow each other
-   - Parse sitemap XML/YAML
-   - Category: CONFIGURATION
+9. **CacheConfigurationInspection** ✅
+   - **ID**: `config.cache-configuration`
+   - **Severity**: WARNING
+   - **Detects**: Incorrect HST/Ehcache configuration issues
+   - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/CacheConfigurationInspection.kt`
 
-3. **UnboundedQueryInspection** (WARNING)
-   - JCR queries without setLimit()
-   - Performance impact
-   - Category: PERFORMANCE
+10. **HstComponentLifecycleInspection** ✅
+    - **ID**: `config.hst-component-lifecycle`
+    - **Severity**: WARNING
+    - **Detects**: Improper component lifecycle management in HST components
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/HstComponentLifecycleInspection.kt`
 
-4. **HardcodedCredentialsInspection** (ERROR)
-   - Passwords, API keys in code
-   - Regex-based detection
-   - Category: SECURITY
+11. **HstComponentThreadSafetyInspection** ✅
+    - **ID**: `config.hst-component-thread-safety`
+    - **Severity**: ERROR
+    - **Detects**: Thread safety violations in HST components
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/HstComponentThreadSafetyInspection.kt`
 
-5. **ComponentParameterNullInspection** (WARNING)
-   - HST getParameter() without null check
-   - Common bug source
-   - Category: CONFIGURATION
+12. **HttpSessionUseInspection** ✅
+    - **ID**: `config.http-session-use`
+    - **Severity**: WARNING
+    - **Detects**: Improper use of HttpSession in HST components
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/HttpSessionUseInspection.kt`
+
+13. **HstFilterInspection** ✅
+    - **ID**: `config.hst-filter`
+    - **Severity**: WARNING
+    - **Detects**: Incorrect HST filter implementation and configuration
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/HstFilterInspection.kt`
+
+14. **SystemOutCallsInspection** ✅
+    - **ID**: `config.system-out-calls`
+    - **Severity**: INFO
+    - **Detects**: System.out/err usage instead of proper logging
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/SystemOutCallsInspection.kt`
+
+15. **StaticRequestSessionInspection** ✅
+    - **ID**: `config.static-request-session`
+    - **Severity**: ERROR
+    - **Detects**: Static storage of request/session objects (concurrency bug)
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/config/StaticRequestSessionInspection.kt`
+
+### Performance (5 inspections)
+
+16. **UnboundedQueryInspection** ✅
+    - **ID**: `performance.unbounded-query`
+    - **Severity**: WARNING
+    - **Detects**: JCR queries without setLimit() that can cause performance issues
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/performance/UnboundedQueryInspection.kt`
+
+17. **MissingIndexInspection** ✅
+    - **ID**: `performance.missing-index`
+    - **Severity**: WARNING
+    - **Detects**: Frequently queried properties missing database indexes
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/performance/MissingIndexInspection.kt`
+
+18. **GetDocumentsPerformanceInspection** ✅
+    - **ID**: `performance.get-documents`
+    - **Severity**: WARNING
+    - **Detects**: Inefficient HippoFolder.getDocuments() usage patterns
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/performance/GetDocumentsPerformanceInspection.kt`
+
+19. **GetSizePerformanceInspection** ✅
+    - **ID**: `performance.get-size`
+    - **Severity**: WARNING
+    - **Detects**: Inefficient HstQueryResult.getSize() calls
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/performance/GetSizePerformanceInspection.kt`
+
+20. **HttpCallsInspection** ✅
+    - **ID**: `performance.http-calls`
+    - **Severity**: WARNING
+    - **Detects**: Synchronous HTTP calls in HST components that block rendering
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/performance/HttpCallsInspection.kt`
+
+### Security (5 inspections)
+
+21. **HardcodedCredentialsInspection** ✅
+    - **ID**: `security.hardcoded-credentials`
+    - **Severity**: ERROR
+    - **Detects**: Passwords, API keys, and tokens hardcoded in source
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/security/HardcodedCredentialsInspection.kt`
+
+22. **HardcodedPathsInspection** ✅
+    - **ID**: `security.hardcoded-paths`
+    - **Severity**: WARNING
+    - **Detects**: Hardcoded JCR paths that reduce code maintainability
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/security/HardcodedPathsInspection.kt`
+
+23. **JcrParameterBindingInspection** ✅
+    - **ID**: `security.jcr-parameter-binding`
+    - **Severity**: ERROR
+    - **Detects**: JCR SQL injection from string concatenation in queries
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/security/JcrParameterBindingInspection.kt`
+
+24. **MissingJspEscapingInspection** ✅
+    - **ID**: `security.missing-jsp-escaping`
+    - **Severity**: ERROR
+    - **Detects**: Missing XSS output escaping in JSP/FreeMarker templates
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/security/MissingJspEscapingInspection.kt`
+
+25. **RestAuthenticationInspection** ✅
+    - **ID**: `security.rest-authentication`
+    - **Severity**: ERROR
+    - **Detects**: REST endpoints missing authentication checks
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/security/RestAuthenticationInspection.kt`
+
+### Deployment (1 inspection)
+
+26. **DockerConfigInspection** ✅
+    - **ID**: `deployment.docker-config`
+    - **Severity**: WARNING
+    - **Detects**: Docker/Kubernetes configuration issues
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/deployment/DockerConfigInspection.kt`
+
+27. **ProjectVersionInspection** ✅
+    - **ID**: `deployment.project-version`
+    - **Severity**: HINT
+    - **Detects**: Project version configuration and compatibility information
+    - **Location**: `core/src/main/kotlin/org/bloomreach/inspections/core/inspections/deployment/ProjectVersionInspection.kt`
 
 ## Technology Stack
 
@@ -656,21 +778,29 @@ model.setAttribute("title", doc.getTitle()); // NPE if doc is null or title is n
 - Documentation
 
 ### ✅ Completed (Sprint 2)
-- 5 more inspections (BootstrapUuidConflict, SitemapShadowing, UnboundedQuery, HardcodedCredentials, ComponentParameterNull)
-- Full test coverage (93 tests, 100% pass rate)
+- 16 more inspections (across repository, configuration, performance, security, and deployment tiers)
+- Full test coverage (93+ tests, 100% pass rate)
 - All inspections integrated into plugin
 
-### 🚧 In Progress (Sprint 3)
+### ✅ Completed (Sprint 3)
 - Plugin testing and quality improvements
-- Unit tests for inspection wrappers
-- Integration tests for plugin features
-- Plugin documentation
+- 40+ unit tests for inspection wrappers
+- Complete plugin documentation
+- User guide and developer guide
+- Plugin version 1.2.0 released
 
-### ⏳ Planned
-- Sprint 4: CLI tool
-- Sprint 5: Report generation and output formats
-- Sprint 6: Additional inspections and refinements
-- Sprint 7: Polish, optimization, and marketplace publication
+### ✅ Completed (Post-Sprint 3)
+- Added ProjectVersionInspection (HINT severity)
+- Fixed false positive errors
+- CLI tool v1.0.6 built and tested
+- Project now has 27 total inspections
+
+### ⏳ Planned (Sprint 4+)
+- CLI tool enhancements
+- Report generation improvements (HTML, JSON, Markdown)
+- CI/CD integration refinements
+- Additional performance optimizations
+- Marketplace publication
 
 ## Getting Help
 
