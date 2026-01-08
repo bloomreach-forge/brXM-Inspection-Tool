@@ -2,7 +2,7 @@
 
 > Comprehensive static analysis for Bloomreach Experience Manager (brXM) projects
 
-[![Version](https://img.shields.io/badge/version-1.0.0-blue.svg)](https://github.com/bloomreach/brxm-inspections-tool)
+[![Version](https://img.shields.io/badge/version-1.0.6-blue.svg)](https://github.com/bloomreach/brxm-inspections-tool)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
@@ -10,14 +10,15 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
 
 ## ✨ Features
 
-### 🔍 Comprehensive Inspections (26 Total)
+### 🔍 Comprehensive Inspections (27 Total)
 
-- **Repository Tier** (5 inspections, 40% priority)
+- **Repository Tier** (6 inspections, 40% priority)
   - JCR Session Leak Detection
   - Session.refresh() Dangerous Calls
   - Content Bean Mapping Issues
   - Document Workflow Implementation Issues
   - Workflow Action Availability Checks
+  - JCR Workflow Pattern Detection
 
 - **Configuration** (10 inspections, 25% priority)
   - Bootstrap UUID Conflict Detection
@@ -45,8 +46,9 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
   - JCR Query SQL Injection (String Concatenation)
   - Missing XSS Output Escaping
 
-- **Deployment** (1 inspection)
+- **Deployment** (2 inspections)
   - Docker/Kubernetes Configuration Issues
+  - Project Version Configuration & Compatibility
 
 ### 🚀 Dual Deployment Options
 
@@ -102,7 +104,7 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
 ./gradlew :cli:build
 
 # Run it
-java -jar cli/build/libs/cli-1.0.0.jar --help
+java -jar cli/build/libs/cli-1.0.6.jar --help
 ```
 
 #### Install Globally (Optional)
@@ -112,10 +114,10 @@ java -jar cli/build/libs/cli-1.0.0.jar --help
 ./gradlew :cli:build
 
 # Extract and install
-unzip cli/build/distributions/cli-1.0.0.zip -d /usr/local/
+unzip cli/build/distributions/cli-1.0.6.zip -d /usr/local/
 
 # Add to PATH (for Linux/Mac)
-echo 'export PATH="/usr/local/cli-1.0.0/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="/usr/local/cli-1.0.6/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # Test installation
@@ -127,9 +129,9 @@ brxm-inspect --version
 ```batch
 REM Build and extract to Program Files
 gradlew :cli:build
-powershell Expand-Archive -Path cli\build\distributions\cli-1.0.0.zip -DestinationPath "C:\Program Files"
+powershell Expand-Archive -Path cli\build\distributions\cli-1.0.6.zip -DestinationPath "C:\Program Files"
 
-REM Add C:\Program Files\cli-1.0.0\bin to PATH environment variable
+REM Add C:\Program Files\cli-1.0.6\bin to PATH environment variable
 REM Then restart terminal and test
 brxm-inspect --version
 ```
@@ -150,38 +152,38 @@ brxm-inspect --version
 
 ```bash
 # Analyze a brXM project directory
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/bloomreach-project
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/bloomreach-project
 
 # Analyze with verbose output
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project --verbose
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project --verbose
 
 # Analyze with parallel execution (faster)
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project --parallel --threads 8
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project --parallel --threads 8
 ```
 
 #### List and Filter Inspections
 
 ```bash
 # List all available inspections
-java -jar cli/build/libs/cli-1.0.0.jar list-inspections
+java -jar cli/build/libs/cli-1.0.6.jar list-inspections
 
 # List only ERROR severity
-java -jar cli/build/libs/cli-1.0.0.jar list-inspections --severity ERROR
+java -jar cli/build/libs/cli-1.0.6.jar list-inspections --severity ERROR
 
 # List by category
-java -jar cli/build/libs/cli-1.0.0.jar list-inspections --category SECURITY
+java -jar cli/build/libs/cli-1.0.6.jar list-inspections --category SECURITY
 ```
 
 #### Generate Reports
 
 ```bash
 # Generate HTML, Markdown, and JSON reports
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
   --format html,markdown,json \
   --output ./brxm-reports
 
 # Only report warnings and errors (skip info level)
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
   --min-severity WARNING \
   --output ./reports
 ```
@@ -190,12 +192,12 @@ java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project \
 
 ```bash
 # Initialize configuration file
-java -jar cli/build/libs/cli-1.0.0.jar config init > brxm-inspections.yaml
+java -jar cli/build/libs/cli-1.0.6.jar config init > brxm-inspections.yaml
 
 # Edit the configuration file to customize inspections
 
 # Analyze using configuration
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
   --config brxm-inspections.yaml
 ```
 
@@ -203,12 +205,12 @@ java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project \
 
 ```bash
 # Exit with error code if issues found above threshold
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
   --fail-on-error \
   --max-errors 5
 
 # Generate report for Jenkins/GitLab CI
-java -jar cli/build/libs/cli-1.0.0.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
   --format json \
   --output ./reports/analysis.json
 ```
@@ -261,7 +263,7 @@ Recent Issues:
 
 **Analysis output**:
 ```bash
-$ java -jar cli-1.0.0.jar analyze /path/to/project
+$ java -jar cli-1.0.6.jar analyze /path/to/project
 
 Bloomreach CMS Inspections - Analyzing project
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -450,7 +452,7 @@ Sample files for testing inspections are in `test-samples/`:
 
 ```bash
 cd test-samples
-java -jar ../cli/build/libs/cli-1.0.0.jar analyze .
+java -jar ../cli/build/libs/cli-1.0.6.jar analyze .
 ```
 
 See `test-samples/README.md` for details.
