@@ -32,6 +32,24 @@ application {
 }
 
 tasks {
+    // Generate version.properties file from gradle.properties to build directory
+    register("generateVersionProperties") {
+        val versionFile = file("${layout.buildDirectory.get()}/generated/resources/org/bloomreach/inspections/cli/version.properties")
+
+        outputs.file(versionFile)
+
+        doLast {
+            versionFile.parentFile.mkdirs()
+            versionFile.writeText("version=${project.version}\n")
+        }
+    }
+
+    // Ensure version properties are generated before resource processing
+    processResources {
+        dependsOn("generateVersionProperties")
+        from("${layout.buildDirectory.get()}/generated/resources")
+    }
+
     jar {
         manifest {
             attributes["Main-Class"] = "org.bloomreach.inspections.cli.BrxmInspectKt"
