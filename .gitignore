@@ -40,3 +40,4 @@ reports/
 
 # Kotlin
 *.kotlin_module
+output/

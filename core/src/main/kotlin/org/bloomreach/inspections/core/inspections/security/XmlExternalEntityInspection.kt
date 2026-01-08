@@ -61,10 +61,9 @@ class XmlExternalEntityInspection : Inspection() {
 
     private fun isTestFile(context: InspectionContext): Boolean {
         val path = context.file.path.toString().lowercase()
-        return path.contains("/test/") ||
-               path.contains("\\test\\") ||
-               path.endsWith("test.java") ||
-               path.endsWith("test.kt")
+        // Only skip files in actual test source directories
+        // Don't use endsWith checks as they're too broad (Test.java → test.java matches)
+        return path.contains("/src/test/") || path.contains("\\src\\test\\")
     }
 
     fun buildDescription(factoryType: String): String {
