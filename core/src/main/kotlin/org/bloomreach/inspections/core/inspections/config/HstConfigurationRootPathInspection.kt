@@ -163,7 +163,7 @@ class HstConfigurationRootPathInspection : Inspection() {
             inspection = this,
             file = context.file,
             severity = Severity.ERROR,
-            message = "Missing hst.configuration.rootPath property",
+            message = "missing hst.configuration.rootPath property",
             description = """
                 **Problem:** HST configuration root path property is missing
 
