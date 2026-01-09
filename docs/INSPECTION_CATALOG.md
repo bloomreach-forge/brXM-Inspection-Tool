@@ -500,7 +500,7 @@ QueryResult result = query.execute();
 **Example - Bad**:
 ```java
 String password = "mySecretPassword123";
-String apiKey = "sk_live_51234567890";
+String apiKey = "sk_test_XXXXXXXXXXXXXXXX";  // Example placeholder
 ```
 
 **Example - Good**:
