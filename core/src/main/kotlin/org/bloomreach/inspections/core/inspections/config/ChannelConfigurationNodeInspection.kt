@@ -77,24 +77,42 @@ class ChannelConfigurationNodeInspection : Inspection() {
 
             val root = doc.documentElement
 
-            // Find all hst:configuration nodes
-            val configNodesList = root.getElementsByTagNameNS("*", "configuration")
+            // Find all sv:node elements (JCR Serialization format)
+            // In SV format, all nodes are represented as <sv:node> with name in sv:name attribute
+            // Note: getElementsByTagName returns descendants, but not the element itself
             val configNodes = mutableListOf<Element>()
-            for (i in 0 until configNodesList.length) {
-                val node = configNodesList.item(i)
-                if (node is Element && node.localName == "configuration" && isHstNamespace(node.namespaceURI)) {
-                    configNodes.add(node)
+
+            // Check the root element first
+            if (root.tagName == "sv:node") {
+                val nodeName = getNodeName(root)
+                if (nodeName == "hst:configuration") {
+                    configNodes.add(root)
+                }
+            }
+
+            // Also check all descendant sv:node elements
+            val allNodesList = root.getElementsByTagName("sv:node")
+            for (i in 0 until allNodesList.length) {
+                val node = allNodesList.item(i)
+                if (node is Element && node != root) {  // Don't add root twice
+                    val nodeName = getNodeName(node)
+                    if (nodeName == "hst:configuration") {
+                        configNodes.add(node)
+                    }
                 }
             }
 
             for (configNode in configNodes) {
                 // Check 1: Look for hst:channel directly under hst:configuration (wrong!)
-                val directChannelsList = configNode.getElementsByTagNameNS("*", "channel")
                 val directChannels = mutableListOf<Element>()
-                for (i in 0 until directChannelsList.length) {
-                    val node = directChannelsList.item(i)
-                    if (node is Element && node.localName == "channel" && isHstNamespace(node.namespaceURI) && node.parentNode == configNode) {
-                        directChannels.add(node)
+                val children = configNode.childNodes
+                for (i in 0 until children.length) {
+                    val child = children.item(i)
+                    if (child is Element && child.tagName == "sv:node") {
+                        val childName = getNodeName(child)
+                        if (childName == "hst:channel") {
+                            directChannels.add(child)
+                        }
                     }
                 }
 
@@ -103,27 +121,34 @@ class ChannelConfigurationNodeInspection : Inspection() {
                 }
 
                 // Check 2: Look for hst:locked = true on hst:configuration
-                if (isHstNodeLocked(configNode)) {
-                    val workspacesList = configNode.getElementsByTagNameNS("*", "workspace")
+                if (isHstNodeLockedInSvFormat(configNode)) {
                     val workspaces = mutableListOf<Element>()
-                    for (i in 0 until workspacesList.length) {
-                        val node = workspacesList.item(i)
-                        if (node is Element && node.localName == "workspace" && isHstNamespace(node.namespaceURI)) {
-                            workspaces.add(node)
+                    val children2 = configNode.childNodes
+                    for (i in 0 until children2.length) {
+                        val child = children2.item(i)
+                        if (child is Element && child.tagName == "sv:node") {
+                            val childName = getNodeName(child)
+                            if (childName == "hst:workspace") {
+                                workspaces.add(child)
+                            }
                         }
                     }
 
                     for (workspace in workspaces) {
-                        val channelsList = workspace.getElementsByTagNameNS("*", "channel")
-                        val channels = mutableListOf<Element>()
-                        for (i in 0 until channelsList.length) {
-                            val node = channelsList.item(i)
-                            if (node is Element && node.localName == "channel" && isHstNamespace(node.namespaceURI)) {
-                                channels.add(node)
+                        val workspaceChildren = workspace.childNodes
+                        var hasChannels = false
+                        for (j in 0 until workspaceChildren.length) {
+                            val workspaceChild = workspaceChildren.item(j)
+                            if (workspaceChild is Element && workspaceChild.tagName == "sv:node") {
+                                val workspaceChildName = getNodeName(workspaceChild)
+                                if (workspaceChildName == "hst:channel") {
+                                    hasChannels = true
+                                    break
+                                }
                             }
                         }
 
-                        if (channels.isNotEmpty()) {
+                        if (hasChannels) {
                             issues.add(createLockedConfigurationIssue(context, configNode))
                             break  // Only report once per configuration node
                         }
@@ -137,9 +162,52 @@ class ChannelConfigurationNodeInspection : Inspection() {
         return issues
     }
 
+    private fun getNodeName(element: Element): String {
+        // In SV format, the node name is in the sv:name attribute
+        // The SV namespace is: http://www.jcp.org/jcr/sv/1.0
+
+        // Try with namespaced attribute (most correct way)
+        var value = element.getAttributeNS("http://www.jcp.org/jcr/sv/1.0", "name")
+        if (value.isNotEmpty()) return value
+
+        // Also try the other way element.attributes iteration
+        val attrs = element.attributes
+        for (i in 0 until attrs.length) {
+            val attr = attrs.item(i)
+            if ((attr.nodeName == "sv:name" || attr.localName == "name") && attr.nodeValue != null) {
+                return attr.nodeValue!!
+            }
+        }
+
+        return ""
+    }
+
     private fun isHstNamespace(namespace: String?): Boolean {
         if (namespace == null) return false
         return namespace.contains("hst") || namespace.contains("hippo")
+    }
+
+    private fun isHstNodeLockedInSvFormat(element: Element): Boolean {
+        // In SV format, properties are <sv:property> elements with sv:name attribute
+        // We look for sv:property with sv:name="hst:locked" and sv:value "true"
+        val properties = element.getElementsByTagName("sv:property")
+        for (i in 0 until properties.length) {
+            val prop = properties.item(i)
+            if (prop is Element) {
+                val propName = prop.getAttribute("sv:name")
+                if (propName == "hst:locked") {
+                    val values = prop.getElementsByTagName("sv:value")
+                    if (values.length > 0) {
+                        val valueNode = values.item(0)
+                        if (valueNode != null) {
+                            val value = valueNode.textContent?.trim()?.lowercase()
+                            return value == "true" || value == "yes" || value == "1"
+                        }
+                    }
+                }
+            }
+        }
+        return false
     }
 
     private fun isHstNodeLocked(element: Element): Boolean {
@@ -190,7 +258,7 @@ class ChannelConfigurationNodeInspection : Inspection() {
             inspection = this,
             file = context.file,
             severity = Severity.WARNING,
-            message = "HST channel node is directly under hst:configuration instead of hst:workspace",
+            message = "hst:channel node is directly under hst:configuration instead of hst:workspace",
             description = """
                 **Problem:** HST channel configuration is in the wrong location in the node hierarchy
 
