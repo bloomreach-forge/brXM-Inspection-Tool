@@ -2,7 +2,7 @@
 
 > Comprehensive static analysis for Bloomreach Experience Manager (brXM) projects
 
-[![Version](https://img.shields.io/badge/version-1.0.6-blue.svg)](https://github.com/bloomreach/brxm-inspections-tool)
+[![Version](https://img.shields.io/badge/version-1.0.7-blue.svg)](https://github.com/bloomreach/brxm-inspections-tool)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Build](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
 
@@ -10,7 +10,7 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
 
 ## ✨ Features
 
-### 🔍 Comprehensive Inspections (27 Total)
+### 🔍 Comprehensive Inspections (38 Total)
 
 - **Repository Tier** (6 inspections, 40% priority)
   - JCR Session Leak Detection
@@ -18,9 +18,9 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
   - Content Bean Mapping Issues
   - Document Workflow Implementation Issues
   - Workflow Action Availability Checks
-  - JCR Workflow Pattern Detection
+  - Node Listener Memory Leak Detection
 
-- **Configuration** (10 inspections, 25% priority)
+- **Configuration** (16 inspections, 25% priority)
   - Bootstrap UUID Conflict Detection
   - Sitemap Pattern Shadowing Detection
   - Component Parameter Null Checks
@@ -31,20 +31,30 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
   - HST Filter Implementation Issues
   - System.out/err Usage
   - Static Request/Session Storage (Concurrency Bug)
+  - HST Configuration Root Path Issues
+  - HTML Comment Stripping Detection
+  - Load Balancer Affinity / 409 Conflict Detection
+  - Magic String Detection
+  - Missing Input Validation
+  - Channel Configuration Node Issues
 
-- **Performance** (5 inspections, 15% priority)
+- **Performance** (6 inspections, 15% priority)
   - Unbounded JCR Query Detection
   - Missing Database Index Detection
   - HippoFolder.getDocuments() Performance Issues
   - HstQueryResult.getSize() Performance Issues
   - Synchronous HTTP Calls in Components
+  - N+1 Query Pattern Detection
 
-- **Security** (5 inspections, 10% priority)
+- **Security** (8 inspections, 10% priority)
   - Hardcoded Credentials Detection
   - Hardcoded JCR Paths Detection
   - Missing REST Authentication
   - JCR Query SQL Injection (String Concatenation)
   - Missing XSS Output Escaping
+  - Security Header Configuration
+  - User Role Authentication Checks
+  - XML External Entity (XXE) Detection
 
 - **Deployment** (2 inspections)
   - Docker/Kubernetes Configuration Issues
@@ -104,7 +114,7 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
 ./gradlew :cli:build
 
 # Run it
-java -jar cli/build/libs/cli-1.0.6.jar --help
+java -jar cli/build/libs/cli-1.0.7.jar --help
 ```
 
 #### Install Globally (Optional)
@@ -114,10 +124,10 @@ java -jar cli/build/libs/cli-1.0.6.jar --help
 ./gradlew :cli:build
 
 # Extract and install
-unzip cli/build/distributions/cli-1.0.6.zip -d /usr/local/
+unzip cli/build/distributions/cli-1.0.7.zip -d /usr/local/
 
 # Add to PATH (for Linux/Mac)
-echo 'export PATH="/usr/local/cli-1.0.6/bin:$PATH"' >> ~/.bashrc
+echo 'export PATH="/usr/local/cli-1.0.7/bin:$PATH"' >> ~/.bashrc
 source ~/.bashrc
 
 # Test installation
@@ -129,9 +139,9 @@ brxm-inspect --version
 ```batch
 REM Build and extract to Program Files
 gradlew :cli:build
-powershell Expand-Archive -Path cli\build\distributions\cli-1.0.6.zip -DestinationPath "C:\Program Files"
+powershell Expand-Archive -Path cli\build\distributions\cli-1.0.7.zip -DestinationPath "C:\Program Files"
 
-REM Add C:\Program Files\cli-1.0.6\bin to PATH environment variable
+REM Add C:\Program Files\cli-1.0.7\bin to PATH environment variable
 REM Then restart terminal and test
 brxm-inspect --version
 ```
@@ -152,38 +162,38 @@ brxm-inspect --version
 
 ```bash
 # Analyze a brXM project directory
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/bloomreach-project
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/bloomreach-project
 
 # Analyze with verbose output
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project --verbose
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/project --verbose
 
 # Analyze with parallel execution (faster)
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project --parallel --threads 8
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/project --parallel --threads 8
 ```
 
 #### List and Filter Inspections
 
 ```bash
 # List all available inspections
-java -jar cli/build/libs/cli-1.0.6.jar list-inspections
+java -jar cli/build/libs/cli-1.0.7.jar list-inspections
 
 # List only ERROR severity
-java -jar cli/build/libs/cli-1.0.6.jar list-inspections --severity ERROR
+java -jar cli/build/libs/cli-1.0.7.jar list-inspections --severity ERROR
 
 # List by category
-java -jar cli/build/libs/cli-1.0.6.jar list-inspections --category SECURITY
+java -jar cli/build/libs/cli-1.0.7.jar list-inspections --category SECURITY
 ```
 
 #### Generate Reports
 
 ```bash
 # Generate HTML, Markdown, and JSON reports
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/project \
   --format html,markdown,json \
   --output ./brxm-reports
 
 # Only report warnings and errors (skip info level)
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/project \
   --min-severity WARNING \
   --output ./reports
 ```
@@ -192,12 +202,12 @@ java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
 
 ```bash
 # Initialize configuration file
-java -jar cli/build/libs/cli-1.0.6.jar config init > brxm-inspections.yaml
+java -jar cli/build/libs/cli-1.0.7.jar config init > brxm-inspections.yaml
 
 # Edit the configuration file to customize inspections
 
 # Analyze using configuration
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/project \
   --config brxm-inspections.yaml
 ```
 
@@ -205,12 +215,12 @@ java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
 
 ```bash
 # Exit with error code if issues found above threshold
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/project \
   --fail-on-error \
   --max-errors 5
 
 # Generate report for Jenkins/GitLab CI
-java -jar cli/build/libs/cli-1.0.6.jar analyze /path/to/project \
+java -jar cli/build/libs/cli-1.0.7.jar analyze /path/to/project \
   --format json \
   --output ./reports/analysis.json
 ```
@@ -263,7 +273,7 @@ Recent Issues:
 
 **Analysis output**:
 ```bash
-$ java -jar cli-1.0.6.jar analyze /path/to/project
+$ java -jar cli-1.0.7.jar analyze /path/to/project
 
 Bloomreach CMS Inspections - Analyzing project
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -452,7 +462,7 @@ Sample files for testing inspections are in `test-samples/`:
 
 ```bash
 cd test-samples
-java -jar ../cli/build/libs/cli-1.0.6.jar analyze .
+java -jar ../cli/build/libs/cli-1.0.7.jar analyze .
 ```
 
 See `test-samples/README.md` for details.
@@ -535,14 +545,14 @@ See [Developer Guide](docs/DEVELOPER_GUIDE.md) for detailed examples and best pr
 
 | Component | Status | Inspections | Coverage |
 |-----------|--------|-------------|----------|
-| Core Engine | ✅ Complete | 26 inspections | 76% |
-| IntelliJ Plugin | ✅ Complete | 26 wrappers | 93% tests |
+| Core Engine | ✅ Complete | 38 inspections | 100% |
+| IntelliJ Plugin | ✅ Complete | 38 wrappers | 93% tests |
 | CLI Tool | ✅ Complete | Full support | - |
 | Documentation | ✅ Complete | Comprehensive | 100% |
 
 ### Completed Features
 
-- ✅ **26 core inspections** implemented across all categories
+- ✅ **38 core inspections** implemented across all categories
   - 5 Repository Tier inspections
   - 10 Configuration inspections
   - 5 Performance inspections

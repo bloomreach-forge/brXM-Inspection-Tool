@@ -21,6 +21,9 @@ out/
 # macOS
 .DS_Store
 
+# Local developer settings
+.claude/
+
 # Logs
 *.log
 
@@ -36,7 +39,6 @@ out/
 
 # Test outputs
 test-output/
-reports/
 
 # Kotlin
 *.kotlin_module

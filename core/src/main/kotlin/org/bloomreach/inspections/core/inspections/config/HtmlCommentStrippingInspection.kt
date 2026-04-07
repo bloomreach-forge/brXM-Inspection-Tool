@@ -83,17 +83,19 @@ class HtmlCommentStrippingInspection : Inspection() {
                         filterClass?.contains("compress", ignoreCase = true) == true ||
                         filterClass?.contains("minif", ignoreCase = true) == true) {
 
-                        // Check init parameters
+                        // Check init parameters — report at most one issue per filter
                         val initParams = filterNode.getElementsByTagName("init-param")
+                        var filterIssueAdded = false
                         for (j in 0 until initParams.length) {
+                            if (filterIssueAdded) break
                             val paramNode = initParams.item(j)
                             if (paramNode is Element) {
                                 val paramName = getElementText(paramNode, "param-name")
                                 val paramValue = getElementText(paramNode, "param-value")
 
-                                // Check for comment removal parameters
                                 if (isCommentStrippingParameter(paramName, paramValue)) {
                                     issues.add(createFilterCommentStrippingIssue(context, filterName ?: "filter", paramName, paramValue))
+                                    filterIssueAdded = true
                                 }
                             }
                         }
@@ -170,10 +172,13 @@ class HtmlCommentStrippingInspection : Inspection() {
 
         return (nameLower.contains("strip-comment") ||
                 nameLower.contains("strip.comment") ||
+                nameLower.contains("strip_comment") ||
                 nameLower.contains("remove-comment") ||
                 nameLower.contains("remove.comment") ||
+                nameLower.contains("remove_comment") ||
                 nameLower.contains("compress-comment") ||
                 nameLower.contains("compress.comment") ||
+                nameLower.contains("compress_comment") ||
                 nameLower.contains("minif") ||
                 nameLower.contains("minify")) &&
                (valueLower == "true" || valueLower == "yes" || valueLower == "1" || valueLower == "enabled")
@@ -306,7 +311,7 @@ class HtmlCommentStrippingInspection : Inspection() {
             inspection = this,
             file = context.file,
             severity = Severity.WARNING,
-            message = "Response header configured to strip HTML comments globally",
+            message = "Response header strips HTML comments globally",
             description = """
                 **Problem:** Response header removes HTML comments from all responses
 
