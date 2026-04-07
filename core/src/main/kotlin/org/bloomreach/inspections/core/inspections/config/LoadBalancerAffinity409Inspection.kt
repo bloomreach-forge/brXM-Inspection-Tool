@@ -90,17 +90,16 @@ class LoadBalancerAffinity409Inspection : Inspection() {
                         val stickyValue = stickySessions.item(0)?.textContent?.trim()?.lowercase()
                         if (stickyValue == "false" || stickyValue == "no" || stickyValue == "disabled") {
                             issues.add(createStickySessionDisabledIssue(context))
+                        } else if (stickyValue == "true" || stickyValue == "yes" || stickyValue == "enabled") {
+                            // Sticky session enabled — check JSESSIONID routing is also configured
+                            val sessionCookies = lbNode.getElementsByTagName("session-cookie")
+                            if (sessionCookies.length == 0) {
+                                issues.add(createMissingSessionCookieRoutingIssue(context))
+                            }
                         }
                     } else {
                         // No sticky-session setting found - might be missing
                         issues.add(createMissingStickySessionIssue(context))
-                    }
-
-                    // Check for JSESSIONID routing
-                    val sessionCookies = lbNode.getElementsByTagName("session-cookie")
-                    if (sessionCookies.length == 0) {
-                        // No session cookie routing configured
-                        issues.add(createMissingSessionCookieRoutingIssue(context))
                     }
                 }
             }

@@ -345,6 +345,7 @@ class LoadBalancerAffinity409InspectionTest {
             <web-app>
                 <load-balancer>
                     <sticky-session>TRUE</sticky-session>
+                    <session-cookie>JSESSIONID</session-cookie>
                 </load-balancer>
             </web-app>
         """.trimIndent()
