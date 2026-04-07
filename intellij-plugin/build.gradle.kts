@@ -24,7 +24,15 @@ intellij {
 tasks {
     patchPluginXml {
         sinceBuild.set("232")
-        untilBuild.set("242.*")
+        untilBuild.set("")
+    }
+
+    // buildSearchableOptions runs a headless IDE to index plugin settings for the
+    // Settings search bar. It hits a ConcurrentModificationException in IntelliJ
+    // internals (known issue with intellij-gradle-plugin 1.17.x). Disabled because
+    // settings search is non-critical and the task is not needed for local development.
+    named("buildSearchableOptions") {
+        enabled = false
     }
 
     signPlugin {
