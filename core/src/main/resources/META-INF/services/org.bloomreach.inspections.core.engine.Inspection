@@ -25,3 +25,13 @@ org.bloomreach.inspections.core.inspections.security.JcrParameterBindingInspecti
 org.bloomreach.inspections.core.inspections.security.MissingJspEscapingInspection
 org.bloomreach.inspections.core.inspections.deployment.DockerConfigInspection
 org.bloomreach.inspections.core.inspections.deployment.ProjectVersionInspection
+org.bloomreach.inspections.core.inspections.performance.MaxRefLevelUsageInspection
+org.bloomreach.inspections.core.inspections.config.StaticDropdownValuesInspection
+org.bloomreach.inspections.core.inspections.config.DevelopmentChannelInspection
+org.bloomreach.inspections.core.inspections.config.ProjectApprovalCountInspection
+org.bloomreach.inspections.core.inspections.config.HstConfigurationBloatInspection
+org.bloomreach.inspections.core.inspections.config.ResourceBundleLocationInspection
+org.bloomreach.inspections.core.inspections.config.ContentTypeLockInspection
+org.bloomreach.inspections.core.inspections.config.DuplicateFieldDefinitionInspection
+org.bloomreach.inspections.core.inspections.security.ExternalPreviewTokenInspection
+org.bloomreach.inspections.core.inspections.security.OpenUiExtensionInspection

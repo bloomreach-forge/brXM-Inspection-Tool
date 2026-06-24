@@ -10,17 +10,16 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
 
 ## ✨ Features
 
-### 🔍 Comprehensive Inspections (38 Total)
+### 🔍 Comprehensive Inspections (44 Total)
 
-- **Repository Tier** (6 inspections, 40% priority)
+- **Repository Tier** (5 inspections, 40% priority)
   - JCR Session Leak Detection
-  - Session.refresh() Dangerous Calls
+  - Dangerous Session.refresh() Calls
   - Content Bean Mapping Issues
   - Document Workflow Implementation Issues
   - Workflow Action Availability Checks
-  - Node Listener Memory Leak Detection
 
-- **Configuration** (16 inspections, 25% priority)
+- **Configuration** (22 inspections, 25% priority)
   - Bootstrap UUID Conflict Detection
   - Sitemap Pattern Shadowing Detection
   - Component Parameter Null Checks
@@ -32,11 +31,17 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
   - System.out/err Usage
   - Static Request/Session Storage (Concurrency Bug)
   - HST Configuration Root Path Issues
+  - Channel Configuration Node Issues
   - HTML Comment Stripping Detection
   - Load Balancer Affinity / 409 Conflict Detection
   - Magic String Detection
-  - Missing Input Validation
-  - Channel Configuration Node Issues
+  - Static Dropdown Values in Document Types
+  - Development Channel Presence in HST Config
+  - Project Approval Count Configuration
+  - HST Configuration Bloat Detection
+  - Resource Bundle Location Validation
+  - Content Type Lock Detection
+  - Duplicate Numbered Field Definitions
 
 - **Performance** (6 inspections, 15% priority)
   - Unbounded JCR Query Detection
@@ -44,17 +49,18 @@ A powerful static analysis tool for Bloomreach Experience Manager (brXM) project
   - HippoFolder.getDocuments() Performance Issues
   - HstQueryResult.getSize() Performance Issues
   - Synchronous HTTP Calls in Components
-  - N+1 Query Pattern Detection
+  - _maxreflevel Parameter Usage in URLs
 
-- **Security** (8 inspections, 10% priority)
+- **Security** (9 inspections, 10% priority)
   - Hardcoded Credentials Detection
   - Hardcoded JCR Paths Detection
   - Missing REST Authentication
   - JCR Query SQL Injection (String Concatenation)
   - Missing XSS Output Escaping
-  - Security Header Configuration
+  - Security Header Configuration (X-Frame-Options)
   - User Role Authentication Checks
-  - XML External Entity (XXE) Detection
+  - External Preview Token Exposure
+  - Open UI Extension Usage
 
 - **Deployment** (2 inspections)
   - Docker/Kubernetes Configuration Issues
@@ -473,52 +479,70 @@ See `test-samples/README.md` for details.
 
 | ID | Name | Severity | Description |
 |---|---|---|---|
-| `repository.session-leak` | JCR Session Leak Detection | 🔴 ERROR | Detects JCR sessions not closed in finally blocks. Unclosed sessions cause session pool exhaustion and memory leaks. |
-| `repository.session-refresh` | Dangerous Session.refresh() Call | 🔴 ERROR | Detects unsafe use of session.refresh() which can cause data consistency issues. |
+| `repository.session-leak` | JCR Session Leak | 🔴 ERROR | Detects JCR sessions not closed in finally blocks, causing session pool exhaustion. |
+| `repository.session-refresh` | Dangerous Session.refresh() | 🟡 WARNING | Detects unsafe session.refresh() calls that can discard unsaved changes. |
 | `repository.content-bean-mapping` | Content Bean Mapping Issues | 🟡 WARNING | Identifies issues in content bean JCR-to-POJO mapping and property access. |
-| `repository.document-workflow` | Document Workflow Implementation Issues | 🟡 WARNING | Detects problems in SCXML workflow implementations. |
-| `repository.workflow-action` | Workflow Action Availability Check | 🟡 WARNING | Ensures workflow actions check availability before execution. |
+| `repository.document-workflow` | Document Workflow Issues | 🟡 WARNING | Detects problems in SCXML workflow implementations. |
+| `repository.workflow-action` | Workflow Action Availability | 🔴 ERROR | Ensures workflow actions check availability before execution. |
 
-### Configuration Inspections (10)
+### Configuration Inspections (22)
 
 | ID | Name | Severity | Description |
 |---|---|---|---|
-| `config.bootstrap-uuid-conflict` | Bootstrap UUID Conflict | 🔴 ERROR | Detects duplicate UUIDs in hippoecm-extension.xml files that cause bootstrap failures. |
+| `config.bootstrap-uuid-conflict` | Bootstrap UUID Conflict | 🔴 ERROR | Detects duplicate UUIDs in hippoecm-extension.xml causing bootstrap failures. |
 | `config.sitemap-shadowing` | Sitemap Pattern Shadowing | 🟡 WARNING | Identifies HST sitemap patterns where general patterns shadow specific ones. |
 | `config.component-parameter-null` | Component Parameter Null Check | 🟡 WARNING | Detects HST component parameters accessed without null checks. |
 | `config.cache-configuration` | Cache Configuration Issues | 🟡 WARNING | Identifies caching configuration problems and optimization opportunities. |
-| `config.hst-component-lifecycle` | HST Component Lifecycle Issues | 🟡 WARNING | Detects improper HST component lifecycle management. |
-| `config.hst-component-thread-safety` | HST Component Thread Safety | 🟡 WARNING | Identifies thread safety issues in HST component implementations. |
+| `config.hst-component-lifecycle` | HST Component Lifecycle | 🟡 WARNING | Detects improper HST component lifecycle management. |
+| `config.hst-component-thread-safety` | HST Component Thread Safety | 🔴 ERROR | Identifies thread safety violations in HST component implementations. |
 | `config.http-session-use` | HttpSession Usage in HST | 🟡 WARNING | Detects improper HttpSession usage in stateless HST components. |
-| `config.hst-filter` | HST Filter Implementation Issues | 🟡 WARNING | Identifies problems in HST filter configuration and implementation. |
-| `config.system-out-calls` | System.out/err Usage | 🔵 INFO | Detects System.out/err calls that should use logging. |
+| `config.hst-filter` | HST Filter Issues | 🟡 WARNING | Identifies problems in HST filter configuration and implementation. |
+| `config.system-out-calls` | System.out/err Usage | 🔵 INFO | Detects System.out/err calls that should use proper logging. |
 | `config.static-request-session` | Static Request/Session Storage | 🔴 ERROR | Detects static storage of request/session objects causing concurrency bugs. |
+| `config.hst-configuration-root-path` | HST Configuration Root Path | 🔴 ERROR | Detects missing or invalid hst.configuration.rootPath properties. |
+| `config.channel-configuration-node` | Channel Configuration Node | 🟡 WARNING | Detects incorrect HST channel node placement in the repository hierarchy. |
+| `config.html-comment-stripping` | HTML Comment Stripping | 🟡 WARNING | Detects comment removal configurations that break the Experience Manager UI. |
+| `config.load-balancer-affinity-409` | Load Balancer Affinity (409) | 🟡 WARNING | Detects missing sticky-session configuration in multi-server deployments. |
+| `config.magic-string` | Magic String Detection | 💡 HINT | Detects hardcoded string literals that should be extracted as named constants. |
+| `config.static-dropdown-values` | Static Dropdown Values | 🔴 ERROR | Detects hardcoded label\|value pairs in document type source properties. |
+| `config.development-channel-presence` | Development Channel Presence | 🔴 ERROR | Detects development/test channel nodes left in HST configuration. |
+| `config.project-approval-count` | Project Approval Count | 🔴 ERROR | Detects approval count set to 0 or 1 in experience projects. |
+| `config.hst-configuration-bloat` | HST Configuration Bloat | 🔴 ERROR | Detects excessive HST channel/site nodes indicating configuration bloat. |
+| `config.resource-bundle-location` | Resource Bundle Location | 💡 HINT | Flags resource bundles that may be in incorrect repository locations. |
+| `config.content-type-lock` | Content Type Lock | 🟡 WARNING | Detects locked content types (jcr:lockOwner) blocking structural changes. |
+| `config.duplicate-field-definition` | Duplicate Field Definition | 💡 HINT | Detects numbered field sequences (image1, image2) suggesting repeated fields. |
 
-### Performance Inspections (5)
+### Performance Inspections (6)
 
 | ID | Name | Severity | Description |
 |---|---|---|---|
-| `performance.unbounded-query` | Unbounded JCR Query | 🟡 WARNING | Detects JCR queries without setLimit() causing memory exhaustion. |
-| `performance.missing-index` | Missing Database Index | 🔵 INFO | Identifies potential missing database indexes on queried properties. |
-| `performance.get-documents` | HippoFolder.getDocuments() Performance | 🟡 WARNING | Detects inefficient use of getDocuments() that can cause performance issues. |
-| `performance.get-size` | HstQueryResult.getSize() Performance | 🟡 WARNING | Identifies inefficient getSize() calls that count all results. |
-| `performance.http-calls` | Synchronous HTTP Calls | 🟡 WARNING | Detects blocking HTTP calls in HST components. |
+| `performance.unbounded-query` | Unbounded JCR Query | 🟡 WARNING | Detects JCR queries without setLimit() that can cause memory exhaustion. |
+| `performance.missing-index` | Missing Database Index | 🔵 INFO | Identifies potential missing database indexes on frequently queried properties. |
+| `performance.get-documents` | getDocuments() Performance | 🟡 WARNING | Detects inefficient HippoFolder.getDocuments() usage patterns. |
+| `performance.get-size` | getSize() Performance | 🟡 WARNING | Identifies inefficient HstQueryResult.getSize() calls that load all results. |
+| `performance.http-calls` | Synchronous HTTP Calls | 🟡 WARNING | Detects blocking HTTP calls in HST components that stall page rendering. |
+| `performance.maxreflevel-usage` | _maxreflevel Parameter Usage | 🔴 ERROR | Detects hardcoded _maxreflevel query parameters that bypass caching. |
 
-### Security Inspections (5)
+### Security Inspections (9)
 
 | ID | Name | Severity | Description |
 |---|---|---|---|
-| `security.hardcoded-credentials` | Hardcoded Credentials | 🔴 ERROR | Detects hardcoded passwords, API keys, and access tokens in code. |
-| `security.hardcoded-paths` | Hardcoded JCR Paths | 🟡 WARNING | Identifies hardcoded JCR paths that reduce configuration flexibility and security. |
-| `security.rest-authentication` | Missing REST Authentication | 🔴 ERROR | Detects REST endpoints without proper authentication. |
-| `security.jcr-parameter-binding` | JCR SQL Injection | 🔴 ERROR | Detects SQL injection vulnerabilities from string concatenation in queries. |
-| `security.missing-jsp-escaping` | Missing XSS Escaping | 🔴 ERROR | Identifies missing output escaping that can cause XSS vulnerabilities. |
+| `security.hardcoded-credentials` | Hardcoded Credentials | 🔴 ERROR | Detects hardcoded passwords, API keys, and access tokens in source code. |
+| `security.hardcoded-paths` | Hardcoded JCR Paths | 🟡 WARNING | Identifies hardcoded JCR paths that reduce configuration flexibility. |
+| `security.rest-authentication` | Missing REST Authentication | 🔴 ERROR | Detects REST endpoints without proper authentication checks. |
+| `security.jcr-parameter-binding` | JCR SQL Injection | 🔴 ERROR | Detects SQL injection vulnerabilities from string concatenation in JCR queries. |
+| `security.missing-jsp-escaping` | Missing XSS Escaping | 🔴 ERROR | Identifies missing output escaping in JSP/FreeMarker templates. |
+| `security.security-header-configuration` | Security Header Configuration | 🔴 ERROR | Detects X-Frame-Options: DENY that breaks the Experience Manager UI. |
+| `security.user-role-authentication` | User Role Authentication | 🔴 ERROR | Detects Channel Manager operations missing the xm.channel.user role check. |
+| `security.external-preview-token` | External Preview Token | 🟡 WARNING | Detects preview token configuration exposed in XML/YAML that may leak to clients. |
+| `security.open-ui-extension` | Open UI Extension Usage | 🟡 WARNING | Flags Open UI extension plugin classes for manual security review. |
 
-### Deployment Inspections (1)
+### Deployment Inspections (2)
 
 | ID | Name | Severity | Description |
 |---|---|---|---|
 | `deployment.docker-config` | Docker/Kubernetes Configuration | 🟡 WARNING | Identifies Docker and Kubernetes configuration issues. |
+| `deployment.project-version` | Project Version | 💡 HINT | Reports project version for compatibility and end-of-life tracking. |
 
 ### Legend
 
@@ -543,21 +567,21 @@ See [Developer Guide](docs/DEVELOPER_GUIDE.md) for detailed examples and best pr
 
 ## 📈 Project Status
 
-| Component | Status | Inspections | Coverage |
-|-----------|--------|-------------|----------|
-| Core Engine | ✅ Complete | 38 inspections | 100% |
-| IntelliJ Plugin | ✅ Complete | 38 wrappers | 93% tests |
+| Component | Status | Inspections | Tests |
+|-----------|--------|-------------|-------|
+| Core Engine | ✅ Complete | 44 inspections | 405 passing |
+| IntelliJ Plugin | ✅ Complete | Full support | - |
 | CLI Tool | ✅ Complete | Full support | - |
-| Documentation | ✅ Complete | Comprehensive | 100% |
+| Documentation | ✅ Complete | Comprehensive | - |
 
 ### Completed Features
 
-- ✅ **38 core inspections** implemented across all categories
+- ✅ **44 core inspections** implemented across all categories
   - 5 Repository Tier inspections
-  - 10 Configuration inspections
-  - 5 Performance inspections
-  - 5 Security inspections
-  - 1 Deployment inspection
+  - 22 Configuration inspections
+  - 6 Performance inspections
+  - 9 Security inspections
+  - 2 Deployment inspections
 - ✅ IntelliJ plugin with real-time analysis (12+ inspection wrappers)
 - ✅ CLI tool with progress reporting and batch analysis
 - ✅ ServiceLoader-based dynamic discovery
@@ -567,7 +591,7 @@ See [Developer Guide](docs/DEVELOPER_GUIDE.md) for detailed examples and best pr
 - ✅ Quick fixes for most inspections
 - ✅ Tool window with statistics and filtering
 - ✅ Comprehensive settings panel
-- ✅ Full test coverage (93 tests, 100% pass rate)
+- ✅ Full test coverage (405 tests, 100% pass rate)
 
 ### Roadmap
 
