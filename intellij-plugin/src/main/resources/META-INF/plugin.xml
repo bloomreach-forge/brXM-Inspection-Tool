@@ -56,10 +56,9 @@
     <!-- Require IntelliJ IDEA 2023.2 or later -->
     <idea-version since-build="232"/>
 
-    <!-- Plugin depends on Java and Kotlin support -->
+    <!-- Plugin depends on Java support -->
     <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.java</depends>
-    <depends>org.jetbrains.kotlin</depends>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Local Inspections -->
