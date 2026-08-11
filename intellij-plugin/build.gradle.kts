@@ -16,8 +16,7 @@ intellij {
     type.set("IC") // IntelliJ IDEA Community Edition
 
     plugins.set(listOf(
-        "java",
-        "Kotlin"
+        "java"
     ))
 }
 
